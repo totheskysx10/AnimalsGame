@@ -1,2 +1,11 @@
 server:
   port: 5001
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/animals
+    username: postgres
+    password: 1
+  jpa:
+    hibernate:
+      ddl-auto: update

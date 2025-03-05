@@ -13,22 +13,12 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Animal {
-
-    /**
-     * Идентификатор животного
-     */
-    @Getter
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "animal_id")
-    private Long id;
-
     /**
      * Название животного
      */
     @Getter
     @Column(name = "animal_name")
-    @NonNull
+    @Id
     private String name;
 
     /**

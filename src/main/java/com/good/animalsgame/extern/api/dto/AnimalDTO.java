@@ -6,8 +6,6 @@ import lombok.Data;
 @Data
 public class AnimalDTO {
 
-    private Long id;
-
     @NotNull
     private String name;
 }

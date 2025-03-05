@@ -42,7 +42,7 @@ public class Level {
     @JoinTable(
             name = "level_animals",
             joinColumns = @JoinColumn(name = "level_id"),
-            inverseJoinColumns = @JoinColumn(name = "animal_id")
+            inverseJoinColumns = @JoinColumn(name = "animal_name")
     )
     @Getter
     private List<Animal> animals;

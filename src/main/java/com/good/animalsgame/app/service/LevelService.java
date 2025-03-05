@@ -1,7 +1,10 @@
 package com.good.animalsgame.app.service;
 
 import com.good.animalsgame.app.cache.LevelsSessionCache;
+import com.good.animalsgame.domain.Animal;
 import com.good.animalsgame.domain.Level;
+import com.good.animalsgame.exception.AnimalNotFoundException;
+import com.good.animalsgame.exception.IncorrectLevelException;
 import com.good.animalsgame.exception.LevelNotFoundException;
 import com.good.animalsgame.exception.NoSuchRoundException;
 import org.slf4j.Logger;
@@ -12,6 +15,7 @@ import java.util.Random;
 
 /**
  * Абстрактный сервис для работы с уровнями
+ *
  * @param <T> тип уровня (раунд)
  * @param <R> тип репозитория
  */
@@ -19,13 +23,21 @@ public abstract class LevelService<T extends Level, R extends JpaRepository<T, L
 
     private final LevelsSessionCache levelsSessionCache;
     private final R levelRepository;
-    Random random = new Random();
-    protected final Logger log = LoggerFactory.getLogger(this.getClass());
+    private final AnimalService animalService;
+    private final Random random = new Random();
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
+
+    /**
+     * Размер списка с животными
+     */
+    private static final int ANIMALS_LIST_SIZE = 4;
 
     protected LevelService(LevelsSessionCache levelsSessionCache,
-                           R levelRepository) {
+                           R levelRepository,
+                           AnimalService animalService) {
         this.levelsSessionCache = levelsSessionCache;
         this.levelRepository = levelRepository;
+        this.animalService = animalService;
     }
 
     /**
@@ -34,12 +46,21 @@ public abstract class LevelService<T extends Level, R extends JpaRepository<T, L
      * @param level уровень
      * @return созданный уровень
      */
-    public T createLevel(T level) {
+    public T createLevel(T level) throws IncorrectLevelException {
         if (level == null) {
             throw new IllegalArgumentException("Уровень не может быть null");
         }
 
         try {
+            if (!level.getAnimals().isEmpty()) {
+                if (!level.getAnimals().contains(level.getCorrectAnimal())) {
+                    throw new IncorrectLevelException("Верный ответ должен содержаться в списке!");
+                }
+                if (level.getAnimals().size() != ANIMALS_LIST_SIZE) {
+                    throw new IncorrectLevelException("Список животных должен содержать ровно 4 элемента.");
+                }
+            }
+
             T savedLevel = levelRepository.save(level);
             log.info("Создан новый уровень с id {}", savedLevel.getId());
             return savedLevel;
@@ -97,5 +118,22 @@ public abstract class LevelService<T extends Level, R extends JpaRepository<T, L
         } catch (IndexOutOfBoundsException e) {
             throw new LevelNotFoundException(String.format("Не найден уровень с индексом %d", randomLevelIndex));
         }
+    }
+
+    /**
+     * Проверяет корректность выбранного пользователем животного
+     *
+     * @param levelId    идентификатор уровня
+     * @param userAnswer ответ пользователя
+     */
+    public boolean isCorrectAnswerInList(Long levelId, String userAnswer) throws LevelNotFoundException, AnimalNotFoundException {
+        T level = getLevelById(levelId);
+        Animal userAnimal = animalService.getAnimalByName(userAnswer);
+
+        if (level.getAnimals().contains(userAnimal)) {
+            return level.getCorrectAnimal().equals(userAnimal);
+        }
+
+        return false;
     }
 }

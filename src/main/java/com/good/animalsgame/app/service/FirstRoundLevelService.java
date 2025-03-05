@@ -12,8 +12,9 @@ import org.springframework.stereotype.Service;
 public class FirstRoundLevelService extends LevelService<FirstRoundLevel, FirstRoundLevelRepository> {
 
     public FirstRoundLevelService(LevelsSessionCache levelsSessionCache,
-                                  FirstRoundLevelRepository firstRoundLevelRepository) {
-        super(levelsSessionCache, firstRoundLevelRepository);
+                                  FirstRoundLevelRepository firstRoundLevelRepository,
+                                  AnimalService animalService) {
+        super(levelsSessionCache, firstRoundLevelRepository, animalService);
     }
 
 }

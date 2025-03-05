@@ -27,6 +27,9 @@ public class LevelsSessionCache {
     private final FirstRoundLevelRepository firstRoundLevelRepository;
     private final SecondRoundLevelRepository secondRoundLevelRepository;
 
+    private static final Integer FIRST_ROUND_NUMBER = 1;
+    private static final Integer SECOND_ROUND_NUMBER = 2;
+
     public LevelsSessionCache(FirstRoundLevelRepository firstRoundLevelRepository,
                               SecondRoundLevelRepository secondRoundLevelRepository) {
         this.firstRoundLevelRepository = firstRoundLevelRepository;
@@ -38,8 +41,8 @@ public class LevelsSessionCache {
      */
     @PostConstruct
     void init() {
-        roundsCache.put(1, firstRoundLevelRepository.findLevelIds());
-        roundsCache.put(2, secondRoundLevelRepository.findLevelIds());
+        roundsCache.put(FIRST_ROUND_NUMBER, firstRoundLevelRepository.findLevelIds());
+        roundsCache.put(SECOND_ROUND_NUMBER, secondRoundLevelRepository.findLevelIds());
     }
 
     /**
@@ -74,7 +77,7 @@ public class LevelsSessionCache {
     }
 
     /**
-     * Удаление уровня для указанного раунда по индексу
+     * Удаление уровня для указанного раунда по индексу за O(1)
      *
      * @param round номер раунда
      * @param index индекс уровня
@@ -83,7 +86,8 @@ public class LevelsSessionCache {
     public void removeLevel(int round, int index) throws NoSuchRoundException {
         List<Long> levels = roundsCache.get(round);
         if (levels != null) {
-            levels.remove(index);
+            levels.set(index, levels.getLast());
+            levels.removeLast();
         } else {
             throw new NoSuchRoundException(String.format("Не найден раунд %d!", round));
         }

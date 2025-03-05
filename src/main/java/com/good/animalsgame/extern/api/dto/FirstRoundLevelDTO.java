@@ -1,6 +1,6 @@
 package com.good.animalsgame.extern.api.dto;
 
-import com.good.animalsgame.domain.AnimalCoordinates;
+import com.good.animalsgame.domain.Coordinates;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
@@ -15,14 +15,14 @@ public class FirstRoundLevelDTO {
     private byte[] imageWithAnimal;
 
     @NotNull
-    private List<Long> animalIds;
+    private List<Long> animalNames;
 
     @NotNull
-    private Long correctAnimalId;
+    private Long correctAnimalName;
 
     @NotNull
     private byte[] levelImage;
 
     @NotNull
-    private AnimalCoordinates coordinates;
+    private Coordinates coordinates;
 }

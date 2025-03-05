@@ -15,8 +15,14 @@ public interface AnimalRepository extends JpaRepository<Animal, Long> {
     Animal findByName(String name);
 
     /**
-     * Ищет животного по идентификатору
-     * @param id идентификатор
+     * Удаляет животного по названию
+     * @param name название
      */
-    Animal findById(long id);
+    void deleteByName(String name);
+
+    /**
+     * Проверяет, есть ли такое животное
+     * @param name название
+     */
+    boolean existsByName(String name);
 }

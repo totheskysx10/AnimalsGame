@@ -14,11 +14,11 @@ public class SecondRoundLevelDTO {
     @NotNull
     private byte[] imageWithAnimal;
 
-    private List<Long> animalIds;
+    private List<Long> animalNames;
 
     @NotNull
-    private Long correctAnimalId;
+    private Long correctAnimalName;
 
     @NotNull
-    private Animal animalInQuestion;
+    private Animal animalNameInQuestion;
 }

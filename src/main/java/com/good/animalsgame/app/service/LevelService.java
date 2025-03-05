@@ -3,10 +3,7 @@ package com.good.animalsgame.app.service;
 import com.good.animalsgame.app.cache.LevelsSessionCache;
 import com.good.animalsgame.domain.Animal;
 import com.good.animalsgame.domain.Level;
-import com.good.animalsgame.exception.AnimalNotFoundException;
-import com.good.animalsgame.exception.IncorrectLevelException;
-import com.good.animalsgame.exception.LevelNotFoundException;
-import com.good.animalsgame.exception.NoSuchRoundException;
+import com.good.animalsgame.exception.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -51,22 +48,18 @@ public abstract class LevelService<T extends Level, R extends JpaRepository<T, L
             throw new IllegalArgumentException("Уровень не может быть null");
         }
 
-        try {
-            if (!level.getAnimals().isEmpty()) {
-                if (!level.getAnimals().contains(level.getCorrectAnimal())) {
-                    throw new IncorrectLevelException("Верный ответ должен содержаться в списке!");
-                }
-                if (level.getAnimals().size() != ANIMALS_LIST_SIZE) {
-                    throw new IncorrectLevelException("Список животных должен содержать ровно 4 элемента.");
-                }
+        if (!level.getAnimals().isEmpty()) {
+            if (!level.getAnimals().contains(level.getCorrectAnimal())) {
+                throw new IncorrectLevelException("Верный ответ должен содержаться в списке!");
             }
-
-            T savedLevel = levelRepository.save(level);
-            log.info("Создан новый уровень с id {}", savedLevel.getId());
-            return savedLevel;
-        } catch (Exception e) {
-            throw new RuntimeException("Ошибка при создании уровня", e);
+            if (level.getAnimals().size() != ANIMALS_LIST_SIZE) {
+                throw new IncorrectLevelException("Список животных должен содержать ровно 4 элемента.");
+            }
         }
+
+        T savedLevel = levelRepository.save(level);
+        log.info("Создан новый уровень с id {}", savedLevel.getId());
+        return savedLevel;
     }
 
     /**
@@ -103,7 +96,11 @@ public abstract class LevelService<T extends Level, R extends JpaRepository<T, L
      * @param round раунд
      * @throws LevelNotFoundException если не найден уровень
      */
-    public T getRandomLevel(int round) throws LevelNotFoundException, NoSuchRoundException {
+    public T getRandomLevel(int round) throws LevelNotFoundException, NoSuchRoundException, NoLevelsLeftException {
+        if (levelsSessionCache.getRoundSize(round) == 0) {
+            throw new NoLevelsLeftException(String.format("Уровней в раунде %d больше нет", round));
+        }
+
         int randomLevelIndex = random.nextInt(levelsSessionCache.getRoundSize(round));
 
         try {
@@ -126,14 +123,10 @@ public abstract class LevelService<T extends Level, R extends JpaRepository<T, L
      * @param levelId    идентификатор уровня
      * @param userAnswer ответ пользователя
      */
-    public boolean isCorrectAnswerInList(Long levelId, String userAnswer) throws LevelNotFoundException, AnimalNotFoundException {
+    public boolean isCorrectAnswer(Long levelId, String userAnswer) throws LevelNotFoundException, AnimalNotFoundException {
         T level = getLevelById(levelId);
         Animal userAnimal = animalService.getAnimalByName(userAnswer);
 
-        if (level.getAnimals().contains(userAnimal)) {
-            return level.getCorrectAnimal().equals(userAnimal);
-        }
-
-        return false;
+        return level.getCorrectAnimal().equals(userAnimal);
     }
 }

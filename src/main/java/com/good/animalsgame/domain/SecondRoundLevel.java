@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 /**
  * Уровень второго раунда
@@ -12,6 +13,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "levels_second_round")
 @AllArgsConstructor
 @NoArgsConstructor
+@SuperBuilder
 public class SecondRoundLevel extends Level {
 
     /**

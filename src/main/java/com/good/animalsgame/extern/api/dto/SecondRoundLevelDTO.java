@@ -1,24 +1,25 @@
 package com.good.animalsgame.extern.api.dto;
 
-import com.good.animalsgame.domain.Animal;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.util.List;
 
 @Data
-public class SecondRoundLevelDTO {
+public class SecondRoundLevelDTO extends RepresentationModel<SecondRoundLevelDTO> {
 
     private Long id;
 
     @NotNull
     private byte[] imageWithAnimal;
 
-    private List<Long> animalNames;
+    @NotNull
+    private List<String> animalNames;
 
     @NotNull
-    private Long correctAnimalName;
+    private String correctAnimalName;
 
     @NotNull
-    private Animal animalNameInQuestion;
+    private String animalNameInQuestion;
 }

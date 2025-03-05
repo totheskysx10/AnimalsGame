@@ -25,17 +25,18 @@ public class SecondRoundLevelService extends LevelService<SecondRoundLevel, Seco
             throw new IllegalArgumentException("Уровень не может быть null");
         }
 
-        if (level.getCorrectAnimal() == level.getAnimalInQuestion()) {
-            if (!level.getAnimals().isEmpty()) {
-                throw new IncorrectLevelException("Список животных должен быть пустым при правильном ответе ДА");
-            }
+        boolean isAnswerCorrect = level.getCorrectAnimal() == level.getAnimalInQuestion();
+        boolean isAnimalsEmpty = level.getAnimals().isEmpty();
+
+        if (isAnswerCorrect && !isAnimalsEmpty || !isAnswerCorrect && isAnimalsEmpty) {
+            throw new IncorrectLevelException(
+                    isAnswerCorrect
+                            ? "Список животных должен быть пустым при совпадении верного ответа и вопроса"
+                            : "Список животных не должен быть пустым при НЕ совпадении верного ответа и вопроса"
+            );
         }
 
-        try {
-            return super.createLevel(level);
-        } catch (Exception e) {
-            throw new RuntimeException("Ошибка при создании уровня второго раунда", e);
-        }
+        return super.createLevel(level);
     }
 
     /**
@@ -44,7 +45,7 @@ public class SecondRoundLevelService extends LevelService<SecondRoundLevel, Seco
      * @param levelId идентификатор уровня
      * @param userAnswer ответ пользователя
      */
-    public boolean isCorrectSecondRoundAnswer(Long levelId, boolean userAnswer) throws LevelNotFoundException {
+    public boolean isCorrectYesNoAnswer(Long levelId, boolean userAnswer) throws LevelNotFoundException {
         SecondRoundLevel level = getLevelById(levelId);
         boolean rightAnswerForLevel = (level.getCorrectAnimal() == level.getAnimalInQuestion());
         return userAnswer == rightAnswerForLevel;

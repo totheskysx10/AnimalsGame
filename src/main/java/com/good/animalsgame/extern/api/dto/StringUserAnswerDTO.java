@@ -1,13 +1,11 @@
 package com.good.animalsgame.extern.api.dto;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class AnimalDTO {
+public class StringUserAnswerDTO {
 
-    @NotNull
-    private String name;
+    String answer;
 }

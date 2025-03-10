@@ -62,9 +62,12 @@ public class AnimalService {
      * @param name название
      */
     public void deleteAnimalByName(String name) throws AnimalNotFoundException {
-        Animal foundAnimal = getAnimalByName(formatAnimalName(name));
-        animalRepository.delete(foundAnimal);
-        log.info("Удалено животное: {}", name);
+        if (animalRepository.existsByName(formatAnimalName(name))) {
+            animalRepository.deleteByName(formatAnimalName(name));
+            log.info("Удалено животное: {}", name);
+        } else {
+            throw new AnimalNotFoundException(String.format("Животное с названием %s не найдено", name));
+        }
     }
 
     /**

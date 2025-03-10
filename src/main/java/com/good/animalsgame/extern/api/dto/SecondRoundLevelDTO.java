@@ -1,5 +1,6 @@
 package com.good.animalsgame.extern.api.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -24,6 +25,7 @@ public class SecondRoundLevelDTO extends RepresentationModel<SecondRoundLevelDTO
 
     @NotNull
     @Schema(description = "Название животного - верный ответ", example = "Лев")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String correctAnimalName;
 
     @NotNull

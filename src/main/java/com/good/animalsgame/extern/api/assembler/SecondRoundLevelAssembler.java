@@ -32,7 +32,6 @@ public class SecondRoundLevelAssembler extends RepresentationModelAssemblerSuppo
         SecondRoundLevelDTO secondRoundLevelDTO = instantiateModel(secondRoundLevel);
 
         secondRoundLevelDTO.setId(secondRoundLevel.getId());
-        secondRoundLevelDTO.setImageWithAnimal(secondRoundLevel.getImageWithAnimal());
         if (!secondRoundLevel.getAnimals().isEmpty()) {
             secondRoundLevelDTO.setAnimalNames(secondRoundLevel.getAnimals()
                 .stream()
@@ -41,6 +40,8 @@ public class SecondRoundLevelAssembler extends RepresentationModelAssemblerSuppo
         }
         secondRoundLevelDTO.setCorrectAnimalName(secondRoundLevel.getCorrectAnimal().getName());
         secondRoundLevelDTO.setAnimalNameInQuestion(secondRoundLevel.getAnimalInQuestion().getName());
+        secondRoundLevelDTO.setLevelImage(secondRoundLevel.getLevelImage());
+        secondRoundLevelDTO.setAnimalCoordinates(secondRoundLevel.getAnimalCoordinates());
 
         secondRoundLevelDTO.add(linkTo(methodOn(SecondRoundLevelController.class).getLevelById(secondRoundLevel.getId())).withSelfRel());
         secondRoundLevelDTO.add(linkTo(methodOn(SecondRoundLevelController.class).getRandomLevel()).withSelfRel());
@@ -56,10 +57,11 @@ public class SecondRoundLevelAssembler extends RepresentationModelAssemblerSuppo
         }
 
         return SecondRoundLevel.builder()
-                .imageWithAnimal(secondRoundLevelDTO.getImageWithAnimal())
                 .animals(animals)
                 .correctAnimal(animalService.getAnimalByName(secondRoundLevelDTO.getCorrectAnimalName()))
                 .animalInQuestion(animalService.getAnimalByName(secondRoundLevelDTO.getAnimalNameInQuestion()))
+                .levelImage(secondRoundLevelDTO.getLevelImage())
+                .animalCoordinates(secondRoundLevelDTO.getAnimalCoordinates())
                 .build();
     }
 }

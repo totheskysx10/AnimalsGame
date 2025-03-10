@@ -1,6 +1,7 @@
 package com.good.animalsgame.extern.api.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.good.animalsgame.domain.Coordinates;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -16,10 +17,6 @@ public class SecondRoundLevelDTO extends RepresentationModel<SecondRoundLevelDTO
     private Long id;
 
     @NotNull
-    @Schema(description = "Изображение с выделенным животным в формате массива байтов")
-    private byte[] imageWithAnimal;
-
-    @NotNull
     @Schema(description = "Список возможных названий животных", example = "['Лев', 'Тигр', 'Пантера', 'Коза']")
     private List<String> animalNames;
 
@@ -31,4 +28,12 @@ public class SecondRoundLevelDTO extends RepresentationModel<SecondRoundLevelDTO
     @NotNull
     @Schema(description = "Название животного, о котором задан вопрос", example = "Тигр")
     private String animalNameInQuestion;
+
+    @NotNull
+    @Schema(description = "Изображение уровня в формате массива байтов")
+    private byte[] levelImage;
+
+    @NotNull
+    @Schema(description = "Координаты и размер области животного на изображении")
+    private Coordinates animalCoordinates;
 }

@@ -38,7 +38,6 @@ public class FirstRoundLevelAssembler extends RepresentationModelAssemblerSuppor
                 .map(Animal::getName)
                 .collect(Collectors.toList()));
         firstRoundLevelDTO.setCorrectAnimalName(firstRoundLevel.getCorrectAnimal().getName());
-        firstRoundLevelDTO.setImageWithAnimal(firstRoundLevel.getImageWithAnimal());
         firstRoundLevelDTO.setAnimalCoordinates(firstRoundLevel.getAnimalCoordinates());
 
         firstRoundLevelDTO.add(linkTo(methodOn(FirstRoundLevelController.class).getLevelById(firstRoundLevel.getId())).withSelfRel());
@@ -55,7 +54,6 @@ public class FirstRoundLevelAssembler extends RepresentationModelAssemblerSuppor
         }
 
         return FirstRoundLevel.builder()
-                .imageWithAnimal(firstRoundLevelDTO.getImageWithAnimal())
                 .animals(animals)
                 .correctAnimal(animalService.getAnimalByName(firstRoundLevelDTO.getCorrectAnimalName()))
                 .levelImage(firstRoundLevelDTO.getLevelImage())

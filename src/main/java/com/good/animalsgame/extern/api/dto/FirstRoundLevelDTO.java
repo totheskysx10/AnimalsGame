@@ -18,10 +18,6 @@ public class FirstRoundLevelDTO extends RepresentationModel<FirstRoundLevelDTO> 
     private Long id;
 
     @NotNull
-    @Schema(description = "Изображение с выделенным животным в формате массива байтов")
-    private byte[] imageWithAnimal;
-
-    @NotNull
     @NotEmpty
     @Schema(description = "Список возможных названий животных", example = "['Лев', 'Тигр', 'Пантера', 'Коза']")
     private List<String> animalNames;

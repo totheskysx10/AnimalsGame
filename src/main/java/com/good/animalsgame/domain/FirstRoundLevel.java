@@ -14,25 +14,5 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class FirstRoundLevel extends Level {
 
-    /**
-     * Картинка без выделенного животного
-     */
-    @Lob
-    @Column(name = "level_image")
-    @Getter
-    @Setter
-    private byte[] levelImage;
 
-    /**
-     * Координаты животного на картинке
-     */
-    @Embedded
-    @AttributeOverrides({
-            @AttributeOverride(name = "x", column = @Column(name = "animal_x")),
-            @AttributeOverride(name = "y", column = @Column(name = "animal_y")),
-            @AttributeOverride(name = "width", column = @Column(name = "animal_width")),
-            @AttributeOverride(name = "height", column = @Column(name = "animal_height"))
-    })
-    @Getter
-    private Coordinates animalCoordinates;
 }

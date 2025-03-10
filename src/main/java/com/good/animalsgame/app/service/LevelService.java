@@ -84,9 +84,12 @@ public abstract class LevelService<T extends Level, R extends JpaRepository<T, L
      * @param levelId идентификатор
      */
     public void deleteLevel(long levelId) throws LevelNotFoundException {
-        T level = getLevelById(levelId);
-        levelRepository.deleteById(levelId);
-        log.info("Удален уровень с id {}", levelId);
+        if (levelRepository.existsById(levelId)) {
+            levelRepository.deleteById(levelId);
+            log.info("Удален уровень с id {}", levelId);
+        } else {
+            throw new LevelNotFoundException(String.format("Уровень с id %d не найден", levelId));
+        }
     }
 
     /**

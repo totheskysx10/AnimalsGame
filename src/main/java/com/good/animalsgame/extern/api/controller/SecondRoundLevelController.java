@@ -1,8 +1,6 @@
 package com.good.animalsgame.extern.api.controller;
 
-import com.good.animalsgame.app.service.AnimalService;
 import com.good.animalsgame.app.service.SecondRoundLevelService;
-import com.good.animalsgame.domain.Animal;
 import com.good.animalsgame.domain.SecondRoundLevel;
 import com.good.animalsgame.exception.*;
 import com.good.animalsgame.extern.api.assembler.SecondRoundLevelAssembler;
@@ -10,55 +8,46 @@ import com.good.animalsgame.extern.api.dto.BooleanUserAnswerDTO;
 import com.good.animalsgame.extern.api.dto.ErrorDTO;
 import com.good.animalsgame.extern.api.dto.SecondRoundLevelDTO;
 import com.good.animalsgame.extern.api.dto.StringUserAnswerDTO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/second-round")
+@Tag(name = "SecondRoundLevelController", description = "Контроллер для управления уровнями 2 раунда")
 public class SecondRoundLevelController {
 
     private final SecondRoundLevelAssembler secondRoundLevelAssembler;
     private final SecondRoundLevelService secondRoundLevelService;
-    private final AnimalService animalService;
 
     private static final int SECOND_ROUND_NUMBER = 2;
 
     public SecondRoundLevelController(SecondRoundLevelAssembler secondRoundLevelAssembler,
-                                      SecondRoundLevelService secondRoundLevelService,
-                                      AnimalService animalService) {
+                                      SecondRoundLevelService secondRoundLevelService) {
         this.secondRoundLevelAssembler = secondRoundLevelAssembler;
         this.secondRoundLevelService = secondRoundLevelService;
-        this.animalService = animalService;
     }
 
+    @Operation(summary = "Создать уровень 2 раунда", description = "Создает уровень 2 раунда")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Уровень успешно создан"),
+            @ApiResponse(responseCode = "400", description = "Некорректный запрос (конкретная ошибка указывается в ответе)"),
+            @ApiResponse(responseCode = "404", description = "Не найдено животное, которое упоминается в теле запроса")
+    })
     @PostMapping
     @Transactional
     public ResponseEntity<Object> createSecondRoundLevel(@RequestBody @Valid SecondRoundLevelDTO secondRoundLevelDTO) {
         try {
-            List<Animal> animals = new ArrayList<>();
-            for (String animalName : secondRoundLevelDTO.getAnimalNames()) {
-                Animal animal = animalService.getAnimalByName(animalName);
-                if (animal == null) {
-                    return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-                }
-                animals.add(animal);
-            }
-
-            SecondRoundLevel secondRoundLevel = SecondRoundLevel.builder()
-                    .imageWithAnimal(secondRoundLevelDTO.getImageWithAnimal())
-                    .animals(animals)
-                    .correctAnimal(animalService.getAnimalByName(secondRoundLevelDTO.getCorrectAnimalName()))
-                    .animalInQuestion(animalService.getAnimalByName(secondRoundLevelDTO.getAnimalNameInQuestion()))
-                    .build();
-
+            SecondRoundLevel secondRoundLevel = secondRoundLevelAssembler.toEntity(secondRoundLevelDTO);
             secondRoundLevelService.createLevel(secondRoundLevel);
 
             return new ResponseEntity<>(secondRoundLevelAssembler.toModel(secondRoundLevel), HttpStatus.CREATED);
@@ -69,6 +58,11 @@ public class SecondRoundLevelController {
         }
     }
 
+    @Operation(summary = "Получить 2 раунда по ID", description = "Находит по идентификатору уровень 2 раунда")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Уровень успешно найден"),
+            @ApiResponse(responseCode = "404", description = "Уровень не найден")
+    })
     @GetMapping("/{id}")
     public ResponseEntity<SecondRoundLevelDTO> getLevelById(@PathVariable long id) {
         try {
@@ -79,6 +73,11 @@ public class SecondRoundLevelController {
         }
     }
 
+    @Operation(summary = "Удалить 2 раунда по ID", description = "Удаляет по идентификатору уровень 2 раунда")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Уровень успешно удалён"),
+            @ApiResponse(responseCode = "404", description = "Уровень не найден")
+    })
     @Transactional
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteSecondRoundLevel(@PathVariable long id) {
@@ -90,6 +89,12 @@ public class SecondRoundLevelController {
         }
     }
 
+    @Operation(summary = "Получить рандомный уровень 2 раунда", description = "Возвращает рандомный уровень 2 раунда")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Уровень успешно найден"),
+            @ApiResponse(responseCode = "404", description = "Внутренняя ошибка поиска уровня"),
+            @ApiResponse(responseCode = "204", description = "Все уровни были показаны - больше нечего возвращать")
+    })
     @GetMapping("/random-level")
     public ResponseEntity<SecondRoundLevelDTO> getRandomLevel() {
         try {
@@ -102,6 +107,11 @@ public class SecondRoundLevelController {
         }
     }
 
+    @Operation(summary = "Проверить корректность ответа пользователя на вопрос с выбором животного", description = "Проверяет, верно ли ответил пользователь")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "true, если пользователь ответил верно, иначе - false"),
+            @ApiResponse(responseCode = "404", description = "Не найдено животное или ошибка поиска уровня")
+    })
     @PostMapping("/is-correct-answer/{id}")
     public ResponseEntity<Map<String, Boolean>> isCorrectAnswer(@PathVariable long id, @RequestBody StringUserAnswerDTO userAnswer) {
         try {
@@ -114,6 +124,11 @@ public class SecondRoundLevelController {
         }
     }
 
+    @Operation(summary = "Проверить корректность ответа пользователя на вопрос Да/Нет", description = "Проверяет, верно ли ответил пользователь")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "true, если пользователь ответил верно, иначе - false"),
+            @ApiResponse(responseCode = "404", description = "Ошибка поиска уровня")
+    })
     @PostMapping("/is-correct-yes-no-answer/{id}")
     public ResponseEntity<Map<String, Boolean>> isCorrectYesNoAnswer(@PathVariable long id, @RequestBody BooleanUserAnswerDTO userAnswer) {
         try {

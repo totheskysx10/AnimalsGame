@@ -1,64 +1,52 @@
 package com.good.animalsgame.extern.api.controller;
 
-import com.good.animalsgame.app.service.AnimalService;
 import com.good.animalsgame.app.service.FirstRoundLevelService;
-import com.good.animalsgame.domain.Animal;
 import com.good.animalsgame.domain.FirstRoundLevel;
 import com.good.animalsgame.exception.*;
 import com.good.animalsgame.extern.api.assembler.FirstRoundLevelAssembler;
 import com.good.animalsgame.extern.api.dto.ErrorDTO;
 import com.good.animalsgame.extern.api.dto.FirstRoundLevelDTO;
 import com.good.animalsgame.extern.api.dto.StringUserAnswerDTO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/first-round")
+@Tag(name = "FirstRoundLevelController", description = "Контроллер для управления уровнями 1 раунда")
 public class FirstRoundLevelController {
 
     private final FirstRoundLevelAssembler firstRoundLevelAssembler;
     private final FirstRoundLevelService firstRoundLevelService;
-    private final AnimalService animalService;
 
     private static final int FIRST_ROUND_NUMBER = 1;
 
     public FirstRoundLevelController(FirstRoundLevelAssembler firstRoundLevelAssembler,
-                                     FirstRoundLevelService firstRoundLevelService,
-                                     AnimalService animalService) {
+                                     FirstRoundLevelService firstRoundLevelService) {
         this.firstRoundLevelAssembler = firstRoundLevelAssembler;
         this.firstRoundLevelService = firstRoundLevelService;
-        this.animalService = animalService;
     }
 
+    @Operation(summary = "Создать уровень 1 раунда", description = "Создает уровень 1 раунда")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Уровень успешно создан"),
+            @ApiResponse(responseCode = "400", description = "Некорректный запрос (конкретная ошибка указывается в ответе)"),
+            @ApiResponse(responseCode = "404", description = "Не найдено животное, которое упоминается в теле запроса")
+    })
     @PostMapping
     @Transactional
     public ResponseEntity<Object> createFirstRoundLevel(@RequestBody @Valid FirstRoundLevelDTO firstRoundLevelDTO) {
         try {
-            List<Animal> animals = new ArrayList<>();
-            for (String animalName : firstRoundLevelDTO.getAnimalNames()) {
-                Animal animal = animalService.getAnimalByName(animalName);
-                if (animal == null) {
-                    return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-                }
-                animals.add(animal);
-            }
-
-            FirstRoundLevel firstRoundLevel = FirstRoundLevel.builder()
-                    .imageWithAnimal(firstRoundLevelDTO.getImageWithAnimal())
-                    .animals(animals)
-                    .correctAnimal(animalService.getAnimalByName(firstRoundLevelDTO.getCorrectAnimalName()))
-                    .levelImage(firstRoundLevelDTO.getLevelImage())
-                    .animalCoordinates(firstRoundLevelDTO.getAnimalCoordinates())
-                    .build();
-
+            FirstRoundLevel firstRoundLevel = firstRoundLevelAssembler.toEntity(firstRoundLevelDTO);
             firstRoundLevelService.createLevel(firstRoundLevel);
 
             return new ResponseEntity<>(firstRoundLevelAssembler.toModel(firstRoundLevel), HttpStatus.CREATED);
@@ -69,6 +57,11 @@ public class FirstRoundLevelController {
         }
     }
 
+    @Operation(summary = "Получить 1 раунда по ID", description = "Находит по идентификатору уровень 1 раунда")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Уровень успешно найден"),
+            @ApiResponse(responseCode = "404", description = "Уровень не найден")
+    })
     @GetMapping("/{id}")
     public ResponseEntity<FirstRoundLevelDTO> getLevelById(@PathVariable long id) {
         try {
@@ -79,6 +72,11 @@ public class FirstRoundLevelController {
         }
     }
 
+    @Operation(summary = "Удалить 1 раунда по ID", description = "Удаляет по идентификатору уровень 1 раунда")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Уровень успешно удалён"),
+            @ApiResponse(responseCode = "404", description = "Уровень не найден")
+    })
     @Transactional
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteFirstRoundLevel(@PathVariable long id) {
@@ -90,6 +88,12 @@ public class FirstRoundLevelController {
         }
     }
 
+    @Operation(summary = "Получить рандомный уровень 1 раунда", description = "Возвращает рандомный уровень 1 раунда")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Уровень успешно найден"),
+            @ApiResponse(responseCode = "404", description = "Внутренняя ошибка поиска уровня"),
+            @ApiResponse(responseCode = "204", description = "Все уровни были показаны - больше нечего возвращать")
+    })
     @GetMapping("/random-level")
     public ResponseEntity<FirstRoundLevelDTO> getRandomLevel() {
         try {
@@ -102,6 +106,11 @@ public class FirstRoundLevelController {
         }
     }
 
+    @Operation(summary = "Проверить корректность ответа пользователя на вопрос с выбором животного", description = "Проверяет, верно ли ответил пользователь")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "true, если пользователь ответил верно, иначе - false"),
+            @ApiResponse(responseCode = "404", description = "Не найдено животное или ошибка поиска уровня")
+    })
     @PostMapping("/is-correct-answer/{id}")
     public ResponseEntity<Map<String, Boolean>> isCorrectAnswer(@PathVariable long id, @RequestBody StringUserAnswerDTO userAnswer) {
         try {

@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-public class Level {
+public abstract class Level {
 
     /**
      * Идентификатор уровня

@@ -57,7 +57,7 @@ public class FirstRoundLevelController {
         }
     }
 
-    @Operation(summary = "Получить 1 раунда по ID", description = "Находит по идентификатору уровень 1 раунда")
+    @Operation(summary = "Получить уровень 1 раунда по ID", description = "Находит по идентификатору уровень 1 раунда")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Уровень успешно найден"),
             @ApiResponse(responseCode = "404", description = "Уровень не найден")
@@ -72,7 +72,7 @@ public class FirstRoundLevelController {
         }
     }
 
-    @Operation(summary = "Удалить 1 раунда по ID", description = "Удаляет по идентификатору уровень 1 раунда")
+    @Operation(summary = "Удалить уровень 1 раунда по ID", description = "Удаляет по идентификатору уровень 1 раунда")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Уровень успешно удалён"),
             @ApiResponse(responseCode = "404", description = "Уровень не найден")

@@ -58,7 +58,7 @@ public class SecondRoundLevelController {
         }
     }
 
-    @Operation(summary = "Получить 2 раунда по ID", description = "Находит по идентификатору уровень 2 раунда")
+    @Operation(summary = "Получить уровень 2 раунда по ID", description = "Находит по идентификатору уровень 2 раунда")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Уровень успешно найден"),
             @ApiResponse(responseCode = "404", description = "Уровень не найден")
@@ -73,7 +73,7 @@ public class SecondRoundLevelController {
         }
     }
 
-    @Operation(summary = "Удалить 2 раунда по ID", description = "Удаляет по идентификатору уровень 2 раунда")
+    @Operation(summary = "Удалить уровень 2 раунда по ID", description = "Удаляет по идентификатору уровень 2 раунда")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Уровень успешно удалён"),
             @ApiResponse(responseCode = "404", description = "Уровень не найден")

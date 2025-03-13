@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 /**
  * Репозиторий уровней первого раунда
  */
-@Repository
+@Repository("1")
 public interface FirstRoundLevelRepository extends LevelRepository<FirstRoundLevel, Long> {
 }

@@ -1,7 +1,6 @@
 package com.good.animalsgame.app.cache;
 
-import com.good.animalsgame.app.repository.FirstRoundLevelRepository;
-import com.good.animalsgame.app.repository.SecondRoundLevelRepository;
+import com.good.animalsgame.app.repository.LevelRepository;
 import com.good.animalsgame.exception.NoSuchRoundException;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
@@ -24,25 +23,26 @@ public class LevelsSessionCache {
      */
     private final Map<Integer, List<Long>> roundsCache = new HashMap<>();
 
-    private final FirstRoundLevelRepository firstRoundLevelRepository;
-    private final SecondRoundLevelRepository secondRoundLevelRepository;
+    /**
+     * Номер раунда в виде строки (из имени бина) -> репозиторий
+     */
+    private final Map<String, LevelRepository<?, ?>> levelRepositories;
 
-    private static final Integer FIRST_ROUND_NUMBER = 1;
-    private static final Integer SECOND_ROUND_NUMBER = 2;
-
-    public LevelsSessionCache(FirstRoundLevelRepository firstRoundLevelRepository,
-                              SecondRoundLevelRepository secondRoundLevelRepository) {
-        this.firstRoundLevelRepository = firstRoundLevelRepository;
-        this.secondRoundLevelRepository = secondRoundLevelRepository;
+    public LevelsSessionCache(Map<String, LevelRepository<?, ?>> levelRepositories) {
+        this.levelRepositories = levelRepositories;
     }
 
     /**
-     * Инициализация кэша - при начале новой сессии для неё подгружается список всех айди уровней
+     * Инициализация кэша - при начале новой сессии для неё подгружается список всех айди уровней всех раундов
      */
     @PostConstruct
     void init() {
-        roundsCache.put(FIRST_ROUND_NUMBER, firstRoundLevelRepository.findLevelIds());
-        roundsCache.put(SECOND_ROUND_NUMBER, secondRoundLevelRepository.findLevelIds());
+        roundsCache.clear();
+        levelRepositories.forEach((roundKey, levelRepository) -> {
+            List<Long> levelIds = levelRepository.findLevelIds();
+            Integer roundNumber = Integer.parseInt(roundKey);
+            roundsCache.put(roundNumber, levelIds);
+        });
     }
 
     /**

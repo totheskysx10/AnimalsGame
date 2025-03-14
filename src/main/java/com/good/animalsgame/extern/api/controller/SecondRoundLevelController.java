@@ -17,7 +17,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,8 +47,10 @@ public class SecondRoundLevelController {
     })
     @PostMapping
     @Transactional
-    public ResponseEntity<Object> createSecondRoundLevel(@RequestBody @Valid SecondRoundLevelDTO secondRoundLevelDTO) {
+    public ResponseEntity<Object> createSecondRoundLevel(@RequestPart("levelImage") MultipartFile levelImage,
+                                                         @RequestPart("levelData") @Valid SecondRoundLevelDTO secondRoundLevelDTO) {
         try {
+            secondRoundLevelDTO.setLevelImage(levelImage);
             SecondRoundLevel secondRoundLevel = secondRoundLevelAssembler.toEntity(secondRoundLevelDTO);
             secondRoundLevelService.createLevel(secondRoundLevel);
 
@@ -55,6 +59,8 @@ public class SecondRoundLevelController {
             return new ResponseEntity<>(new ErrorDTO(e.getMessage()), HttpStatus.BAD_REQUEST);
         } catch (AnimalNotFoundException e) {
             return new ResponseEntity<>(new ErrorDTO(e.getMessage()), HttpStatus.NOT_FOUND);
+        } catch (IOException e) {
+            return new ResponseEntity<>(new ErrorDTO(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

@@ -14,11 +14,11 @@ import java.util.Base64;
 public class MultipartFileSerializer extends JsonSerializer<MultipartFile> {
 
     @Override
-    public void serialize(MultipartFile value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-        if (value != null) {
-            byte[] bytes = value.getBytes();
+    public void serialize(MultipartFile file, JsonGenerator generator, SerializerProvider serializers) throws IOException {
+        if (file != null) {
+            byte[] bytes = file.getBytes();
             String base64 = Base64.getEncoder().encodeToString(bytes);
-            gen.writeString(base64);
+            generator.writeString(base64);
         }
     }
 }

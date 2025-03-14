@@ -9,10 +9,8 @@ import lombok.experimental.SuperBuilder;
  */
 @Entity
 @Table(name = "levels_first_round")
-@AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
 public class FirstRoundLevel extends Level {
-
 
 }

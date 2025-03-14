@@ -11,7 +11,6 @@ import java.util.List;
  */
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-@AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
 public abstract class Level {

@@ -63,6 +63,7 @@ public class SecondRoundLevelController {
             @ApiResponse(responseCode = "200", description = "Уровень успешно найден"),
             @ApiResponse(responseCode = "404", description = "Уровень не найден")
     })
+    @Transactional
     @GetMapping("/{id}")
     public ResponseEntity<SecondRoundLevelDTO> getLevelById(@PathVariable long id) {
         try {
@@ -95,6 +96,7 @@ public class SecondRoundLevelController {
             @ApiResponse(responseCode = "404", description = "Внутренняя ошибка поиска уровня"),
             @ApiResponse(responseCode = "204", description = "Все уровни были показаны - больше нечего возвращать")
     })
+    @Transactional
     @GetMapping("/random-level")
     public ResponseEntity<SecondRoundLevelDTO> getRandomLevel() {
         try {

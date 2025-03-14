@@ -62,6 +62,7 @@ public class FirstRoundLevelController {
             @ApiResponse(responseCode = "200", description = "Уровень успешно найден"),
             @ApiResponse(responseCode = "404", description = "Уровень не найден")
     })
+    @Transactional
     @GetMapping("/{id}")
     public ResponseEntity<FirstRoundLevelDTO> getLevelById(@PathVariable long id) {
         try {

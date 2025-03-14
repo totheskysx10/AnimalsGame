@@ -76,6 +76,10 @@ public class AnimalService {
      * @param animalName название животного
      */
     private String formatAnimalName(String animalName) {
-        return animalName.substring(0, 1).toUpperCase() + animalName.substring(1).toLowerCase();
+        if (!animalName.isEmpty()) {
+            return animalName.substring(0, 1).toUpperCase() + animalName.substring(1).toLowerCase();
+        } else {
+            return animalName;
+        }
     }
 }

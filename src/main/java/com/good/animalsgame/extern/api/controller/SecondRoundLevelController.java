@@ -1,13 +1,11 @@
 package com.good.animalsgame.extern.api.controller;
 
 import com.good.animalsgame.app.service.SecondRoundLevelService;
+import com.good.animalsgame.domain.Animal;
 import com.good.animalsgame.domain.SecondRoundLevel;
 import com.good.animalsgame.exception.*;
 import com.good.animalsgame.extern.api.assembler.SecondRoundLevelAssembler;
-import com.good.animalsgame.extern.api.dto.BooleanUserAnswerDTO;
-import com.good.animalsgame.extern.api.dto.ErrorDTO;
-import com.good.animalsgame.extern.api.dto.SecondRoundLevelDTO;
-import com.good.animalsgame.extern.api.dto.StringUserAnswerDTO;
+import com.good.animalsgame.extern.api.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -144,6 +142,22 @@ public class SecondRoundLevelController {
             Map<String, Boolean> response = new HashMap<>();
             response.put("isCorrect", isCorrect);
             return ResponseEntity.ok(response);
+        } catch (LevelNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @Operation(summary = "Получить верный ответ уровень 2 раунда", description = "Получает верный ответ уровня 2 раунда")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Корректный возврат"),
+            @ApiResponse(responseCode = "404", description = "Уровень не найден")
+    })
+    @Transactional
+    @GetMapping("/{id}/correct")
+    public ResponseEntity<AnimalDTO> get(@PathVariable long id) {
+        try {
+            Animal animal = secondRoundLevelService.getLevelCorrectAnimal(id);
+            return ResponseEntity.ok(new AnimalDTO(animal.getName()));
         } catch (LevelNotFoundException e) {
             return ResponseEntity.notFound().build();
         }

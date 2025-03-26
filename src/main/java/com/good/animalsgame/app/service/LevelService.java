@@ -132,4 +132,13 @@ public abstract class LevelService<T extends Level, R extends JpaRepository<T, L
 
         return level.getCorrectAnimal().equals(userAnimal);
     }
+
+    /**
+     * Возвращает верное животное уровня
+     * @param levelId идентификатор уровня
+     */
+    public Animal getLevelCorrectAnimal(Long levelId) throws LevelNotFoundException {
+        T level = getLevelById(levelId);
+        return level.getCorrectAnimal();
+    }
 }

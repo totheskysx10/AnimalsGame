@@ -1,9 +1,11 @@
 package com.good.animalsgame.extern.api.controller;
 
 import com.good.animalsgame.app.service.FirstRoundLevelService;
+import com.good.animalsgame.domain.Animal;
 import com.good.animalsgame.domain.FirstRoundLevel;
 import com.good.animalsgame.exception.*;
 import com.good.animalsgame.extern.api.assembler.FirstRoundLevelAssembler;
+import com.good.animalsgame.extern.api.dto.AnimalDTO;
 import com.good.animalsgame.extern.api.dto.ErrorDTO;
 import com.good.animalsgame.extern.api.dto.FirstRoundLevelDTO;
 import com.good.animalsgame.extern.api.dto.StringUserAnswerDTO;
@@ -126,6 +128,22 @@ public class FirstRoundLevelController {
             response.put("isCorrect", isCorrect);
             return ResponseEntity.ok(response);
         } catch (LevelNotFoundException | AnimalNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @Operation(summary = "Получить верный ответ уровень 1 раунда", description = "Получает верный ответ уровня 1 раунда")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Корректный возврат"),
+            @ApiResponse(responseCode = "404", description = "Уровень не найден")
+    })
+    @Transactional
+    @GetMapping("/{id}/correct")
+    public ResponseEntity<AnimalDTO> get(@PathVariable long id) {
+        try {
+            Animal animal = firstRoundLevelService.getLevelCorrectAnimal(id);
+            return ResponseEntity.ok(new AnimalDTO(animal.getName()));
+        } catch (LevelNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
     }

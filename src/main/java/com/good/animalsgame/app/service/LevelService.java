@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Optional;
 import java.util.Random;
 
 /**
@@ -69,13 +70,8 @@ public abstract class LevelService<T extends Level, R extends JpaRepository<T, L
      * @throws LevelNotFoundException если уровень не найден
      */
     public T getLevelById(long levelId) throws LevelNotFoundException {
-        T foundLevel = levelRepository.findById(levelId).orElse(null);
-        if (foundLevel == null) {
-            throw new LevelNotFoundException(String.format("Уровень с id %d не найден", levelId));
-        } else {
-            log.debug("Найден уровень с id {}", levelId);
-            return foundLevel;
-        }
+        Optional<T> foundLevel = levelRepository.findById(levelId);
+        return foundLevel.orElseThrow(() -> new LevelNotFoundException(String.format("Уровень с id %d не найден", levelId)));
     }
 
     /**
@@ -100,21 +96,22 @@ public abstract class LevelService<T extends Level, R extends JpaRepository<T, L
      * @throws LevelNotFoundException если не найден уровень
      */
     public T getRandomLevel(int round) throws LevelNotFoundException, NoSuchRoundException, NoLevelsLeftException {
-        if (levelsSessionCache.getRoundSize(round) == 0) {
+        int roundSize = levelsSessionCache.getRoundSize(round);
+
+        if (roundSize == 0) {
             throw new NoLevelsLeftException(String.format("Уровней в раунде %d больше нет", round));
         }
 
-        int randomLevelIndex = random.nextInt(levelsSessionCache.getRoundSize(round));
+        int randomLevelIndex = random.nextInt(roundSize);
 
         try {
-            Long randomLevelId = levelsSessionCache.getLevel(round, randomLevelIndex);
-            T randomLevel = levelRepository.findById(randomLevelId).orElse(null);
-            if (randomLevel == null) {
-                throw new LevelNotFoundException(String.format("Уровень с id %d не найден", randomLevelId));
-            } else {
-                levelsSessionCache.removeLevel(round, randomLevelIndex);
-                return randomLevel;
-            }
+            Long randomLevelId = levelsSessionCache.getLevelId(round, randomLevelIndex);
+            T randomLevel = levelRepository
+                    .findById(randomLevelId)
+                    .orElseThrow(() -> new LevelNotFoundException(String.format("Уровень с id %d не найден", randomLevelId)));
+
+            levelsSessionCache.removeLevel(round, randomLevelIndex);
+            return randomLevel;
         } catch (IndexOutOfBoundsException e) {
             throw new LevelNotFoundException(String.format("Не найден уровень с индексом %d", randomLevelIndex));
         }

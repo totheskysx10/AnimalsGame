@@ -3,6 +3,8 @@ package com.good.animalsgame.app.repository;
 import com.good.animalsgame.domain.Animal;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Optional;
+
 /**
  * Репозиторий животных
  */
@@ -12,7 +14,7 @@ public interface AnimalRepository extends JpaRepository<Animal, Long> {
      * Ищет животного по названию
      * @param name название
      */
-    Animal findByName(String name);
+    Optional<Animal> findByName(String name);
 
     /**
      * Удаляет животного по названию

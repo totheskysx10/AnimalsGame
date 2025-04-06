@@ -10,6 +10,7 @@ import lombok.NonNull;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,13 +33,12 @@ public class FirstRoundLevelAssembler extends RepresentationModelAssemblerSuppor
         FirstRoundLevelDTO firstRoundLevelDTO = instantiateModel(firstRoundLevel);
 
         firstRoundLevelDTO.setId(firstRoundLevel.getId());
-        firstRoundLevelDTO.setLevelImage(firstRoundLevel.getLevelImage());
+        firstRoundLevelDTO.setLevelImage(new CustomMultipartFile(firstRoundLevel.getLevelImage(), "image", "image/png"));
         firstRoundLevelDTO.setAnimalNames(firstRoundLevel.getAnimals()
                 .stream()
                 .map(Animal::getName)
                 .collect(Collectors.toList()));
         firstRoundLevelDTO.setCorrectAnimalName(firstRoundLevel.getCorrectAnimal().getName());
-        firstRoundLevelDTO.setImageWithAnimal(firstRoundLevel.getImageWithAnimal());
         firstRoundLevelDTO.setAnimalCoordinates(firstRoundLevel.getAnimalCoordinates());
 
         firstRoundLevelDTO.add(linkTo(methodOn(FirstRoundLevelController.class).getLevelById(firstRoundLevel.getId())).withSelfRel());
@@ -47,7 +47,7 @@ public class FirstRoundLevelAssembler extends RepresentationModelAssemblerSuppor
         return firstRoundLevelDTO;
     }
 
-    public FirstRoundLevel toEntity(FirstRoundLevelDTO firstRoundLevelDTO) throws AnimalNotFoundException {
+    public FirstRoundLevel toEntity(FirstRoundLevelDTO firstRoundLevelDTO) throws AnimalNotFoundException, IOException {
         List<Animal> animals = new ArrayList<>();
         for (String animalName : firstRoundLevelDTO.getAnimalNames()) {
             Animal animal = animalService.getAnimalByName(animalName);
@@ -55,10 +55,9 @@ public class FirstRoundLevelAssembler extends RepresentationModelAssemblerSuppor
         }
 
         return FirstRoundLevel.builder()
-                .imageWithAnimal(firstRoundLevelDTO.getImageWithAnimal())
                 .animals(animals)
                 .correctAnimal(animalService.getAnimalByName(firstRoundLevelDTO.getCorrectAnimalName()))
-                .levelImage(firstRoundLevelDTO.getLevelImage())
+                .levelImage(firstRoundLevelDTO.getLevelImage().getBytes())
                 .animalCoordinates(firstRoundLevelDTO.getAnimalCoordinates())
                 .build();
     }

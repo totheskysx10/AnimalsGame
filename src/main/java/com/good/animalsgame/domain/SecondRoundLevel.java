@@ -1,7 +1,6 @@
 package com.good.animalsgame.domain;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -11,7 +10,6 @@ import lombok.experimental.SuperBuilder;
  */
 @Entity
 @Table(name = "levels_second_round")
-@AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
 public class SecondRoundLevel extends Level {

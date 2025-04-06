@@ -48,6 +48,7 @@ public class AnimalController {
             @ApiResponse(responseCode = "200", description = "Животное успешно найдено"),
             @ApiResponse(responseCode = "404", description = "Животное не найдено")
     })
+    @Transactional
     @GetMapping("/{name}")
     public ResponseEntity<AnimalDTO> getAnimalByName(@PathVariable String name) {
         try {

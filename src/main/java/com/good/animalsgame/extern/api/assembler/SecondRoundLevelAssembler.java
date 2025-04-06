@@ -10,6 +10,7 @@ import lombok.NonNull;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,7 +33,6 @@ public class SecondRoundLevelAssembler extends RepresentationModelAssemblerSuppo
         SecondRoundLevelDTO secondRoundLevelDTO = instantiateModel(secondRoundLevel);
 
         secondRoundLevelDTO.setId(secondRoundLevel.getId());
-        secondRoundLevelDTO.setImageWithAnimal(secondRoundLevel.getImageWithAnimal());
         if (!secondRoundLevel.getAnimals().isEmpty()) {
             secondRoundLevelDTO.setAnimalNames(secondRoundLevel.getAnimals()
                 .stream()
@@ -41,6 +41,8 @@ public class SecondRoundLevelAssembler extends RepresentationModelAssemblerSuppo
         }
         secondRoundLevelDTO.setCorrectAnimalName(secondRoundLevel.getCorrectAnimal().getName());
         secondRoundLevelDTO.setAnimalNameInQuestion(secondRoundLevel.getAnimalInQuestion().getName());
+        secondRoundLevelDTO.setLevelImage(new CustomMultipartFile(secondRoundLevel.getLevelImage(), "image", "image/png"));
+        secondRoundLevelDTO.setAnimalCoordinates(secondRoundLevel.getAnimalCoordinates());
 
         secondRoundLevelDTO.add(linkTo(methodOn(SecondRoundLevelController.class).getLevelById(secondRoundLevel.getId())).withSelfRel());
         secondRoundLevelDTO.add(linkTo(methodOn(SecondRoundLevelController.class).getRandomLevel()).withSelfRel());
@@ -48,7 +50,7 @@ public class SecondRoundLevelAssembler extends RepresentationModelAssemblerSuppo
         return secondRoundLevelDTO;
     }
 
-    public SecondRoundLevel toEntity(SecondRoundLevelDTO secondRoundLevelDTO) throws AnimalNotFoundException {
+    public SecondRoundLevel toEntity(SecondRoundLevelDTO secondRoundLevelDTO) throws AnimalNotFoundException, IOException {
         List<Animal> animals = new ArrayList<>();
         for (String animalName : secondRoundLevelDTO.getAnimalNames()) {
             Animal animal = animalService.getAnimalByName(animalName);
@@ -56,10 +58,11 @@ public class SecondRoundLevelAssembler extends RepresentationModelAssemblerSuppo
         }
 
         return SecondRoundLevel.builder()
-                .imageWithAnimal(secondRoundLevelDTO.getImageWithAnimal())
                 .animals(animals)
                 .correctAnimal(animalService.getAnimalByName(secondRoundLevelDTO.getCorrectAnimalName()))
                 .animalInQuestion(animalService.getAnimalByName(secondRoundLevelDTO.getAnimalNameInQuestion()))
+                .levelImage(secondRoundLevelDTO.getLevelImage().getBytes())
+                .animalCoordinates(secondRoundLevelDTO.getAnimalCoordinates())
                 .build();
     }
 }

@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 /**
  * Сервис для работы с животными
@@ -47,13 +48,8 @@ public class AnimalService {
      * @param name название
      */
     public Animal getAnimalByName(String name) throws AnimalNotFoundException {
-        Animal foundAnimal = animalRepository.findByName(formatAnimalName(name));
-        if (foundAnimal == null) {
-            throw new AnimalNotFoundException(String.format("Животное с названием %s не найдено", name));
-        } else {
-            log.debug("Найдено животное {}", name);
-            return foundAnimal;
-        }
+        Optional<Animal> foundAnimal = animalRepository.findByName(formatAnimalName(name));
+        return foundAnimal.orElseThrow(() -> new AnimalNotFoundException(String.format("Животное с названием %s не найдено", name)));
     }
 
     /**
@@ -76,6 +72,10 @@ public class AnimalService {
      * @param animalName название животного
      */
     private String formatAnimalName(String animalName) {
-        return animalName.substring(0, 1).toUpperCase() + animalName.substring(1).toLowerCase();
+        if (!animalName.isEmpty()) {
+            return animalName.substring(0, 1).toUpperCase() + animalName.substring(1).toLowerCase();
+        } else {
+            return animalName;
+        }
     }
 }

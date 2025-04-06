@@ -61,13 +61,13 @@ public class LevelsSessionCache {
     }
 
     /**
-     * Получение уровня для указанного раунда по индексу
+     * Получение айди уровня для указанного раунда по индексу
      *
      * @param round номер раунда
      * @param index индекс уровня
      * @throws NoSuchRoundException если раунд не найден
      */
-    public Long getLevel(int round, int index) throws NoSuchRoundException {
+    public Long getLevelId(int round, int index) throws NoSuchRoundException {
         List<Long> levels = roundsCache.get(round);
         if (levels != null) {
             return levels.get(index);

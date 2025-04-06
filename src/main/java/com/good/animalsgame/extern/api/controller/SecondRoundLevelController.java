@@ -1,13 +1,11 @@
 package com.good.animalsgame.extern.api.controller;
 
 import com.good.animalsgame.app.service.SecondRoundLevelService;
+import com.good.animalsgame.domain.Animal;
 import com.good.animalsgame.domain.SecondRoundLevel;
 import com.good.animalsgame.exception.*;
 import com.good.animalsgame.extern.api.assembler.SecondRoundLevelAssembler;
-import com.good.animalsgame.extern.api.dto.BooleanUserAnswerDTO;
-import com.good.animalsgame.extern.api.dto.ErrorDTO;
-import com.good.animalsgame.extern.api.dto.SecondRoundLevelDTO;
-import com.good.animalsgame.extern.api.dto.StringUserAnswerDTO;
+import com.good.animalsgame.extern.api.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -17,7 +15,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,8 +45,10 @@ public class SecondRoundLevelController {
     })
     @PostMapping
     @Transactional
-    public ResponseEntity<Object> createSecondRoundLevel(@RequestBody @Valid SecondRoundLevelDTO secondRoundLevelDTO) {
+    public ResponseEntity<Object> createSecondRoundLevel(@RequestPart("levelImage") MultipartFile levelImage,
+                                                         @RequestPart("levelData") @Valid SecondRoundLevelDTO secondRoundLevelDTO) {
         try {
+            secondRoundLevelDTO.setLevelImage(levelImage);
             SecondRoundLevel secondRoundLevel = secondRoundLevelAssembler.toEntity(secondRoundLevelDTO);
             secondRoundLevelService.createLevel(secondRoundLevel);
 
@@ -55,6 +57,8 @@ public class SecondRoundLevelController {
             return new ResponseEntity<>(new ErrorDTO(e.getMessage()), HttpStatus.BAD_REQUEST);
         } catch (AnimalNotFoundException e) {
             return new ResponseEntity<>(new ErrorDTO(e.getMessage()), HttpStatus.NOT_FOUND);
+        } catch (IOException e) {
+            return new ResponseEntity<>(new ErrorDTO(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -63,6 +67,7 @@ public class SecondRoundLevelController {
             @ApiResponse(responseCode = "200", description = "Уровень успешно найден"),
             @ApiResponse(responseCode = "404", description = "Уровень не найден")
     })
+    @Transactional
     @GetMapping("/{id}")
     public ResponseEntity<SecondRoundLevelDTO> getLevelById(@PathVariable long id) {
         try {
@@ -95,6 +100,7 @@ public class SecondRoundLevelController {
             @ApiResponse(responseCode = "404", description = "Внутренняя ошибка поиска уровня"),
             @ApiResponse(responseCode = "204", description = "Все уровни были показаны - больше нечего возвращать")
     })
+    @Transactional
     @GetMapping("/random-level")
     public ResponseEntity<SecondRoundLevelDTO> getRandomLevel() {
         try {
@@ -136,6 +142,22 @@ public class SecondRoundLevelController {
             Map<String, Boolean> response = new HashMap<>();
             response.put("isCorrect", isCorrect);
             return ResponseEntity.ok(response);
+        } catch (LevelNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @Operation(summary = "Получить верный ответ уровень 2 раунда", description = "Получает верный ответ уровня 2 раунда")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Корректный возврат"),
+            @ApiResponse(responseCode = "404", description = "Уровень не найден")
+    })
+    @Transactional
+    @GetMapping("/{id}/correct")
+    public ResponseEntity<AnimalDTO> get(@PathVariable long id) {
+        try {
+            Animal animal = secondRoundLevelService.getLevelCorrectAnimal(id);
+            return ResponseEntity.ok(new AnimalDTO(animal.getName()));
         } catch (LevelNotFoundException e) {
             return ResponseEntity.notFound().build();
         }

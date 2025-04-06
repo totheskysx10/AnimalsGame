@@ -11,7 +11,6 @@ import java.util.List;
  */
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-@AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
 public abstract class Level {
@@ -24,15 +23,6 @@ public abstract class Level {
     @Getter
     @Column(name = "level_id")
     private Long id;
-
-    /**
-     * Картинка с выделенным животным
-     */
-    @Lob
-    @Column(name = "image_with_animal")
-    @Getter
-    @Setter
-    private byte[] imageWithAnimal;
 
     /**
      * Список животных на уровне
@@ -53,4 +43,26 @@ public abstract class Level {
     @JoinColumn(name = "correct_animal")
     @Getter
     private Animal correctAnimal;
+
+    /**
+     * Картинка без выделенного животного
+     */
+    @Lob
+    @Column(name = "level_image")
+    @Getter
+    @Setter
+    private byte[] levelImage;
+
+    /**
+     * Координаты животного на картинке
+     */
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "x", column = @Column(name = "animal_x")),
+            @AttributeOverride(name = "y", column = @Column(name = "animal_y")),
+            @AttributeOverride(name = "width", column = @Column(name = "animal_width")),
+            @AttributeOverride(name = "height", column = @Column(name = "animal_height"))
+    })
+    @Getter
+    private Coordinates animalCoordinates;
 }

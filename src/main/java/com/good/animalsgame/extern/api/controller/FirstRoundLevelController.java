@@ -139,10 +139,10 @@ public class FirstRoundLevelController {
     })
     @Transactional
     @GetMapping("/{id}/correct")
-    public ResponseEntity<AnimalDTO> get(@PathVariable long id) {
+    public ResponseEntity<AnimalDTO> getLevelCorrectAnimal(@PathVariable long id) {
         try {
             Animal animal = firstRoundLevelService.getLevelCorrectAnimal(id);
-            return ResponseEntity.ok(new AnimalDTO(animal.getName()));
+            return ResponseEntity.ok(new AnimalDTO(animal.getName(), animal.getDescription()));
         } catch (LevelNotFoundException e) {
             return ResponseEntity.notFound().build();
         }

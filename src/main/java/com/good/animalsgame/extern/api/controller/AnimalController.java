@@ -1,6 +1,7 @@
 package com.good.animalsgame.extern.api.controller;
 
 import com.good.animalsgame.app.service.AnimalService;
+import com.good.animalsgame.domain.Animal;
 import com.good.animalsgame.exception.AnimalDuplicateException;
 import com.good.animalsgame.exception.AnimalNotFoundException;
 import com.good.animalsgame.extern.api.dto.AnimalDTO;
@@ -36,8 +37,10 @@ public class AnimalController {
     public ResponseEntity<Object> createAnimal(@RequestBody @Valid AnimalDTO animalDTO) {
         try {
             String animalName = animalDTO.getName();
-            animalService.createAnimal(animalName);
-            return new ResponseEntity<>(new AnimalDTO(animalName), HttpStatus.CREATED);
+            String animalDescription = animalDTO.getDescription();
+            animalService.createAnimal(animalName, animalDescription);
+
+            return new ResponseEntity<>(new AnimalDTO(animalName, animalDescription), HttpStatus.CREATED);
         } catch (AnimalDuplicateException e) {
             return new ResponseEntity<>(new ErrorDTO(e.getMessage()), HttpStatus.CONFLICT);
         }
@@ -52,8 +55,8 @@ public class AnimalController {
     @GetMapping("/{name}")
     public ResponseEntity<AnimalDTO> getAnimalByName(@PathVariable String name) {
         try {
-            animalService.getAnimalByName(name);
-            return ResponseEntity.ok(new AnimalDTO(name));
+            Animal animal = animalService.getAnimalByName(name);
+            return ResponseEntity.ok(new AnimalDTO(animal.getName(), animal.getDescription()));
         } catch (AnimalNotFoundException e) {
             return ResponseEntity.notFound().build();
         }

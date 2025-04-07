@@ -13,4 +13,7 @@ public class AnimalDTO {
     @NotNull
     @Schema(description = "Название животного", example = "Лев")
     private String name;
+
+    @Schema(description = "Описание животного")
+    private String description;
 }

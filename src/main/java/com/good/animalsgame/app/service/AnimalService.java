@@ -28,15 +28,16 @@ public class AnimalService {
      * Создаёт животное
      *
      * @param animalName название животного
+     * @param animalDescription описание животного
      * @throws AnimalDuplicateException если такое животное уже есть
      */
-    public void createAnimal(String animalName) throws AnimalDuplicateException {
+    public void createAnimal(String animalName, String animalDescription) throws AnimalDuplicateException {
         String formattedName = formatAnimalName(animalName);
         if (animalRepository.existsByName(formattedName)) {
             throw new AnimalDuplicateException("Название животного должно быть уникальным!");
         }
 
-        Animal animal = new Animal(formattedName, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        Animal animal = new Animal(formattedName, animalDescription, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
 
         animalRepository.save(animal);
         log.info("Создано животное: {}", animalName);

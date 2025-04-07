@@ -13,6 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Animal {
+
     /**
      * Название животного
      */
@@ -20,6 +21,13 @@ public class Animal {
     @Column(name = "animal_name")
     @Id
     private String name;
+
+    /**
+     * Описание животного
+     */
+    @Getter
+    @Column(name = "animal_description", columnDefinition = "TEXT")
+    private String description;
 
     /**
      * Уровни с животным в списке

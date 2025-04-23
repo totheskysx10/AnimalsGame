@@ -20,17 +20,17 @@ public class SecondRoundLevelDTO extends RepresentationModel<SecondRoundLevelDTO
     private Long id;
 
     @NotNull
-    @Schema(description = "Список возможных названий животных", example = "['Лев', 'Тигр', 'Пантера', 'Коза']")
-    private List<String> animalNames;
+    @Schema(description = "Список возможных названий животных", example = "['1', '11', '12', '13']")
+    private List<Long> animalIds;
 
     @NotNull
-    @Schema(description = "Название животного - верный ответ", example = "Лев")
+    @Schema(description = "Id животного - верный ответ", example = "11")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private String correctAnimalName;
+    private Long correctAnimalId;
 
     @NotNull
-    @Schema(description = "Название животного, о котором задан вопрос", example = "Тигр")
-    private String animalNameInQuestion;
+    @Schema(description = "Id животного, о котором задан вопрос", example = "12")
+    private Long animalIdInQuestion;
 
     @Schema(description = "Изображение уровня")
     @JsonSerialize(using = MultipartFileSerializer.class)

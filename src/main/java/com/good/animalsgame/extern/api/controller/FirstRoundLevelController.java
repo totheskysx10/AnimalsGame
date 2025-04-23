@@ -5,10 +5,9 @@ import com.good.animalsgame.domain.Animal;
 import com.good.animalsgame.domain.FirstRoundLevel;
 import com.good.animalsgame.exception.*;
 import com.good.animalsgame.extern.api.assembler.FirstRoundLevelAssembler;
-import com.good.animalsgame.extern.api.dto.AnimalDTO;
 import com.good.animalsgame.extern.api.dto.ErrorDTO;
 import com.good.animalsgame.extern.api.dto.FirstRoundLevelDTO;
-import com.good.animalsgame.extern.api.dto.StringUserAnswerDTO;
+import com.good.animalsgame.extern.api.dto.LongUserAnswerDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -121,7 +120,7 @@ public class FirstRoundLevelController {
             @ApiResponse(responseCode = "404", description = "Не найдено животное или ошибка поиска уровня")
     })
     @PostMapping("/is-correct-answer/{id}")
-    public ResponseEntity<Map<String, Boolean>> isCorrectAnswer(@PathVariable long id, @RequestBody StringUserAnswerDTO userAnswer) {
+    public ResponseEntity<Map<String, Boolean>> isCorrectAnswer(@PathVariable long id, @RequestBody LongUserAnswerDTO userAnswer) {
         try {
             Boolean isCorrect = firstRoundLevelService.isCorrectAnswer(id, userAnswer.getAnswer());
             Map<String, Boolean> response = new HashMap<>();
@@ -139,10 +138,12 @@ public class FirstRoundLevelController {
     })
     @Transactional
     @GetMapping("/{id}/correct")
-    public ResponseEntity<AnimalDTO> getLevelCorrectAnimal(@PathVariable long id) {
+    public ResponseEntity<Map<String, Long>> getLevelCorrectAnimalId(@PathVariable long id) {
         try {
+            Map<String, Long> response = new HashMap<>();
             Animal animal = firstRoundLevelService.getLevelCorrectAnimal(id);
-            return ResponseEntity.ok(new AnimalDTO(animal.getName(), animal.getDescription()));
+            response.put("id", animal.getId());
+            return ResponseEntity.ok(response);
         } catch (LevelNotFoundException e) {
             return ResponseEntity.notFound().build();
         }

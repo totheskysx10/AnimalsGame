@@ -34,11 +34,11 @@ public class FirstRoundLevelAssembler extends RepresentationModelAssemblerSuppor
 
         firstRoundLevelDTO.setId(firstRoundLevel.getId());
         firstRoundLevelDTO.setLevelImage(new CustomMultipartFile(firstRoundLevel.getLevelImage(), "image", "image/png"));
-        firstRoundLevelDTO.setAnimalNames(firstRoundLevel.getAnimals()
+        firstRoundLevelDTO.setAnimalIds(firstRoundLevel.getAnimals()
                 .stream()
-                .map(Animal::getName)
+                .map(Animal::getId)
                 .collect(Collectors.toList()));
-        firstRoundLevelDTO.setCorrectAnimalName(firstRoundLevel.getCorrectAnimal().getName());
+        firstRoundLevelDTO.setCorrectAnimalId(firstRoundLevel.getCorrectAnimal().getId());
         firstRoundLevelDTO.setAnimalCoordinates(firstRoundLevel.getAnimalCoordinates());
 
         firstRoundLevelDTO.add(linkTo(methodOn(FirstRoundLevelController.class).getLevelById(firstRoundLevel.getId())).withSelfRel());
@@ -49,14 +49,14 @@ public class FirstRoundLevelAssembler extends RepresentationModelAssemblerSuppor
 
     public FirstRoundLevel toEntity(FirstRoundLevelDTO firstRoundLevelDTO) throws AnimalNotFoundException, IOException {
         List<Animal> animals = new ArrayList<>();
-        for (String animalName : firstRoundLevelDTO.getAnimalNames()) {
-            Animal animal = animalService.getAnimalByName(animalName);
+        for (Long animalId : firstRoundLevelDTO.getAnimalIds()) {
+            Animal animal = animalService.getAnimalById(animalId);
             animals.add(animal);
         }
 
         return FirstRoundLevel.builder()
                 .animals(animals)
-                .correctAnimal(animalService.getAnimalByName(firstRoundLevelDTO.getCorrectAnimalName()))
+                .correctAnimal(animalService.getAnimalById(firstRoundLevelDTO.getCorrectAnimalId()))
                 .levelImage(firstRoundLevelDTO.getLevelImage().getBytes())
                 .animalCoordinates(firstRoundLevelDTO.getAnimalCoordinates())
                 .build();

@@ -34,13 +34,13 @@ public class SecondRoundLevelAssembler extends RepresentationModelAssemblerSuppo
 
         secondRoundLevelDTO.setId(secondRoundLevel.getId());
         if (!secondRoundLevel.getAnimals().isEmpty()) {
-            secondRoundLevelDTO.setAnimalNames(secondRoundLevel.getAnimals()
+            secondRoundLevelDTO.setAnimalIds(secondRoundLevel.getAnimals()
                 .stream()
-                .map(Animal::getName)
+                .map(Animal::getId)
                 .collect(Collectors.toList()));
         }
-        secondRoundLevelDTO.setCorrectAnimalName(secondRoundLevel.getCorrectAnimal().getName());
-        secondRoundLevelDTO.setAnimalNameInQuestion(secondRoundLevel.getAnimalInQuestion().getName());
+        secondRoundLevelDTO.setCorrectAnimalId(secondRoundLevel.getCorrectAnimal().getId());
+        secondRoundLevelDTO.setAnimalIdInQuestion(secondRoundLevel.getAnimalInQuestion().getId());
         secondRoundLevelDTO.setLevelImage(new CustomMultipartFile(secondRoundLevel.getLevelImage(), "image", "image/png"));
         secondRoundLevelDTO.setAnimalCoordinates(secondRoundLevel.getAnimalCoordinates());
 
@@ -52,15 +52,15 @@ public class SecondRoundLevelAssembler extends RepresentationModelAssemblerSuppo
 
     public SecondRoundLevel toEntity(SecondRoundLevelDTO secondRoundLevelDTO) throws AnimalNotFoundException, IOException {
         List<Animal> animals = new ArrayList<>();
-        for (String animalName : secondRoundLevelDTO.getAnimalNames()) {
-            Animal animal = animalService.getAnimalByName(animalName);
+        for (Long animalId : secondRoundLevelDTO.getAnimalIds()) {
+            Animal animal = animalService.getAnimalById(animalId);
             animals.add(animal);
         }
 
         return SecondRoundLevel.builder()
                 .animals(animals)
-                .correctAnimal(animalService.getAnimalByName(secondRoundLevelDTO.getCorrectAnimalName()))
-                .animalInQuestion(animalService.getAnimalByName(secondRoundLevelDTO.getAnimalNameInQuestion()))
+                .correctAnimal(animalService.getAnimalById(secondRoundLevelDTO.getCorrectAnimalId()))
+                .animalInQuestion(animalService.getAnimalById(secondRoundLevelDTO.getAnimalIdInQuestion()))
                 .levelImage(secondRoundLevelDTO.getLevelImage().getBytes())
                 .animalCoordinates(secondRoundLevelDTO.getAnimalCoordinates())
                 .build();

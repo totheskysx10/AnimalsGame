@@ -119,7 +119,7 @@ public class SecondRoundLevelController {
             @ApiResponse(responseCode = "404", description = "Не найдено животное или ошибка поиска уровня")
     })
     @PostMapping("/is-correct-answer/{id}")
-    public ResponseEntity<Map<String, Boolean>> isCorrectAnswer(@PathVariable long id, @RequestBody StringUserAnswerDTO userAnswer) {
+    public ResponseEntity<Map<String, Boolean>> isCorrectAnswer(@PathVariable long id, @RequestBody LongUserAnswerDTO userAnswer) {
         try {
             Boolean isCorrect = secondRoundLevelService.isCorrectAnswer(id, userAnswer.getAnswer());
             Map<String, Boolean> response = new HashMap<>();
@@ -154,10 +154,12 @@ public class SecondRoundLevelController {
     })
     @Transactional
     @GetMapping("/{id}/correct")
-    public ResponseEntity<AnimalDTO> getLevelCorrectAnimal(@PathVariable long id) {
+    public ResponseEntity<Map<String, Long>> getLevelCorrectAnimalId(@PathVariable long id) {
         try {
+            Map<String, Long> response = new HashMap<>();
             Animal animal = secondRoundLevelService.getLevelCorrectAnimal(id);
-            return ResponseEntity.ok(new AnimalDTO(animal.getName(), animal.getDescription()));
+            response.put("id", animal.getId());
+            return ResponseEntity.ok(response);
         } catch (LevelNotFoundException e) {
             return ResponseEntity.notFound().build();
         }

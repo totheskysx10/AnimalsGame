@@ -1,8 +1,10 @@
 package com.good.animalsgame.app.repository;
 
 import com.good.animalsgame.domain.Animal;
+import com.good.animalsgame.domain.Language;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -11,20 +13,20 @@ import java.util.Optional;
 public interface AnimalRepository extends JpaRepository<Animal, Long> {
 
     /**
-     * Ищет животного по названию
-     * @param name название
+     * Ищет животного по идентификатору
+     * @param id идентификатор
      */
-    Optional<Animal> findByName(String name);
+    Optional<Animal> findById(Long id);
 
     /**
-     * Удаляет животного по названию
-     * @param name название
+     * Удаляет животного по идентификатору
+     * @param id идентификатор
      */
-    void deleteByName(String name);
+    void deleteById(Long id);
 
     /**
      * Проверяет, есть ли такое животное
-     * @param name название
+     * @param id идентификатор
      */
-    boolean existsByName(String name);
+    boolean existsById(Long id);
 }

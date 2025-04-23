@@ -2,14 +2,16 @@ package com.good.animalsgame.app.service;
 
 import com.good.animalsgame.app.repository.AnimalRepository;
 import com.good.animalsgame.domain.Animal;
+import com.good.animalsgame.domain.Language;
 import com.good.animalsgame.exception.AnimalDuplicateException;
 import com.good.animalsgame.exception.AnimalNotFoundException;
+import com.good.animalsgame.exception.LanguageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Сервис для работы с животными
@@ -27,44 +29,100 @@ public class AnimalService {
     /**
      * Создаёт животное
      *
-     * @param animalName название животного
-     * @param animalDescription описание животного
+     * @param animal животное
      * @throws AnimalDuplicateException если такое животное уже есть
      */
-    public void createAnimal(String animalName, String animalDescription) throws AnimalDuplicateException {
-        String formattedName = formatAnimalName(animalName);
-        if (animalRepository.existsByName(formattedName)) {
-            throw new AnimalDuplicateException("Название животного должно быть уникальным!");
+    public Animal createAnimal(Animal animal) throws AnimalDuplicateException {
+        if (isDuplicateAnimal(animal.getName())) {
+            throw new AnimalDuplicateException("Название животного должно быть уникальным! Даже если хоть по одному из языков есть пересечение, будет ошибка.");
         }
-
-        Animal animal = new Animal(formattedName, animalDescription, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
 
         animalRepository.save(animal);
-        log.info("Создано животное: {}", animalName);
+        log.info("Создано животное: {}", animal.getId());
+
+        return animal;
     }
 
     /**
-     * Ищет животного по названию
+     * Ищет животного по идентификатору
      *
-     * @param name название
+     * @param id идентификатор
      */
-    public Animal getAnimalByName(String name) throws AnimalNotFoundException {
-        Optional<Animal> foundAnimal = animalRepository.findByName(formatAnimalName(name));
-        return foundAnimal.orElseThrow(() -> new AnimalNotFoundException(String.format("Животное с названием %s не найдено", name)));
+    public Animal getAnimalById(Long id) throws AnimalNotFoundException {
+        Optional<Animal> foundAnimal = animalRepository.findById(id);
+        return foundAnimal.orElseThrow(() -> new AnimalNotFoundException(String.format("Животное с id %s не найдено", id)));
     }
 
     /**
-     * Удаляет животное по названию
+     * Удаляет животного по идентификатору
      *
-     * @param name название
+     * @param id идентификатор
      */
-    public void deleteAnimalByName(String name) throws AnimalNotFoundException {
-        if (animalRepository.existsByName(formatAnimalName(name))) {
-            animalRepository.deleteByName(formatAnimalName(name));
-            log.info("Удалено животное: {}", name);
+    public void deleteAnimalById(Long id) throws AnimalNotFoundException {
+        if (animalRepository.existsById(id)) {
+            animalRepository.deleteById(id);
+            log.info("Удалено животное: {}", id);
         } else {
-            throw new AnimalNotFoundException(String.format("Животное с названием %s не найдено", name));
+            throw new AnimalNotFoundException(String.format("Животное с id %s не найдено", id));
         }
+    }
+
+    /**
+     * Добавляет животному язык
+     * @param id идентификатор
+     * @param language язык
+     * @param name название
+     * @param description описание
+     * @throws LanguageException если язык уже есть
+     */
+    public void addLanguage(Long id, String language, String name, String description) throws AnimalNotFoundException, LanguageException {
+        Animal animal = getAnimalById(id);
+
+        Language languageConst;
+
+        try {
+            languageConst = Language.valueOf(language);
+        } catch (IllegalArgumentException e) {
+            throw new LanguageException("Нет языка " + language);
+        }
+
+        if (animal.getName().containsKey(languageConst)) {
+            throw new LanguageException("Язык " + language + " уже есть!");
+        }
+
+        animal.getName().put(languageConst, name);
+        animal.getDescription().put(languageConst, description);
+
+        animalRepository.save(animal);
+        log.info("Добавлен язык {} к уровню {}", language, id);
+    }
+
+    /**
+     * Убирает у животного язык
+     * @param id идентификатор
+     * @param language язык
+     * @throws LanguageException если язык отсутствует
+     */
+    public void removeLanguage(Long id, String language) throws AnimalNotFoundException, LanguageException {
+        Animal animal = getAnimalById(id);
+
+        Language languageConst;
+
+        try {
+            languageConst = Language.valueOf(language);
+        } catch (IllegalArgumentException e) {
+            throw new LanguageException("Нет языка " + language);
+        }
+
+        if (!animal.getName().containsKey(languageConst)) {
+            throw new LanguageException("Язык " + language + " отсутствует!");
+        }
+
+        animal.getName().remove(languageConst);
+        animal.getDescription().remove(languageConst);
+
+        animalRepository.save(animal);
+        log.info("Удалён язык {} у уровня {}", language, id);
     }
 
     /**
@@ -78,5 +136,33 @@ public class AnimalService {
         } else {
             return animalName;
         }
+    }
+
+    /**
+     * Проверяет, что такого животного нет в базе
+     * @param names названия на языках
+     */
+    private boolean isDuplicateAnimal(Map<Language, String> names) {
+        List<Animal> allAnimals = animalRepository.findAll();
+
+        Set<String> existingNameSet = allAnimals.stream()
+                .flatMap(animal -> animal.getName().values().stream())
+                .map(this::formatAnimalName)
+                .collect(Collectors.toSet());
+
+        Set<String> newNames = names.values().stream()
+                .map(this::formatAnimalName)
+                .collect(Collectors.toSet());
+
+        boolean result = false;
+
+        for (String newName : newNames) {
+            if (existingNameSet.contains(newName)) {
+                result = true;
+                break;
+            }
+        }
+
+        return result;
     }
 }

@@ -22,13 +22,13 @@ public class FirstRoundLevelDTO extends RepresentationModel<FirstRoundLevelDTO> 
 
     @NotNull
     @NotEmpty
-    @Schema(description = "Список возможных названий животных", example = "['Лев', 'Тигр', 'Пантера', 'Коза']")
-    private List<String> animalNames;
+    @Schema(description = "Список возможных ID животных", example = "['1', '11', '12', '13']")
+    private List<Long> animalIds;
 
     @NotNull
-    @Schema(description = "Название животного - верный ответ", example = "Лев")
+    @Schema(description = "ID животного - верный ответ", example = "1")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private String correctAnimalName;
+    private Long correctAnimalId;
 
     @Schema(description = "Изображение уровня")
     @JsonSerialize(using = MultipartFileSerializer.class)

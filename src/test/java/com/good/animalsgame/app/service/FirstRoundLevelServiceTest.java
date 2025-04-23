@@ -4,6 +4,7 @@ import com.good.animalsgame.app.cache.LevelsSessionCache;
 import com.good.animalsgame.app.repository.FirstRoundLevelRepository;
 import com.good.animalsgame.domain.Animal;
 import com.good.animalsgame.domain.FirstRoundLevel;
+import com.good.animalsgame.domain.Language;
 import com.good.animalsgame.exception.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -35,7 +37,12 @@ class FirstRoundLevelServiceTest {
 
     @Test
     void testCreateLevel() throws IncorrectLevelException {
-        Animal correctAnimal = new Animal("Лев", "Описание", null, null, null);
+        Animal correctAnimal = Animal.builder()
+                .id(1L)
+                .name(Map.of(Language.RUSSIAN, "Лев"))
+                .description(Map.of(Language.RUSSIAN, "Большая кошка"))
+                .build();
+
         List<Animal> animals = Collections.nCopies(4, correctAnimal);
         FirstRoundLevel level = FirstRoundLevel.builder()
                 .animals(animals)
@@ -52,7 +59,12 @@ class FirstRoundLevelServiceTest {
 
     @Test
     void testCreateLevelWithIncorrectAnimalListSize() {
-        Animal correctAnimal = new Animal("Лев", "Описание", null, null, null);
+        Animal correctAnimal = Animal.builder()
+                .id(1L)
+                .name(Map.of(Language.RUSSIAN, "Лев"))
+                .description(Map.of(Language.RUSSIAN, "Большая кошка"))
+                .build();
+
         List<Animal> animals = Collections.nCopies(3, correctAnimal);
         FirstRoundLevel level = FirstRoundLevel.builder()
                 .animals(animals)
@@ -67,8 +79,18 @@ class FirstRoundLevelServiceTest {
 
     @Test
     void testCreateLevelWithoutCorrectAnimalInList() {
-        Animal correctAnimal = new Animal("Лев", "Описание", null, null, null);
-        Animal otherAnimal = new Animal("Тигр", "Описание", null, null, null);
+        Animal correctAnimal = Animal.builder()
+                .id(1L)
+                .name(Map.of(Language.RUSSIAN, "Лев"))
+                .description(Map.of(Language.RUSSIAN, "Большая кошка"))
+                .build();
+
+        Animal otherAnimal = Animal.builder()
+                .id(2L)
+                .name(Map.of(Language.RUSSIAN, "Тигр"))
+                .description(Map.of(Language.RUSSIAN, "Большая кошка"))
+                .build();
+
         List<Animal> animals = Collections.nCopies(4, otherAnimal);
         FirstRoundLevel level = FirstRoundLevel.builder()
                 .animals(animals)
@@ -141,14 +163,19 @@ class FirstRoundLevelServiceTest {
     @Test
     void testIsCorrectAnswer() throws LevelNotFoundException, AnimalNotFoundException {
         Long levelId = 1L;
-        String userAnswer = "Лев";
-        Animal correctAnimal = new Animal("Лев", "Описание", null, null, null);
+        Long userAnswer = 1L;
+        Animal correctAnimal = Animal.builder()
+                .id(1L)
+                .name(Map.of(Language.RUSSIAN, "Лев"))
+                .description(Map.of(Language.RUSSIAN, "Большая кошка"))
+                .build();
+
         FirstRoundLevel level = FirstRoundLevel.builder()
                 .correctAnimal(correctAnimal)
                 .build();
 
         when(levelRepository.findById(levelId)).thenReturn(Optional.of(level));
-        when(animalService.getAnimalByName(userAnswer)).thenReturn(correctAnimal);
+        when(animalService.getAnimalById(userAnswer)).thenReturn(correctAnimal);
 
         assertTrue(firstRoundLevelService.isCorrectAnswer(levelId, userAnswer));
     }
@@ -156,7 +183,12 @@ class FirstRoundLevelServiceTest {
     @Test
     void testGetLevelCorrectAnimal() throws LevelNotFoundException {
         Long levelId = 1L;
-        Animal correctAnimal = new Animal("Лев", "Описание", null, null, null);
+        Animal correctAnimal = Animal.builder()
+                .id(1L)
+                .name(Map.of(Language.RUSSIAN, "Лев"))
+                .description(Map.of(Language.RUSSIAN, "Большая кошка"))
+                .build();
+
         FirstRoundLevel level = FirstRoundLevel.builder()
                 .correctAnimal(correctAnimal)
                 .build();

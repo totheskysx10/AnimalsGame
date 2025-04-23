@@ -188,4 +188,19 @@ class AnimalServiceTest {
 
         assertEquals("Язык ENGLISH отсутствует!", e.getMessage());
     }
+
+    @Test
+    void testRemoveLanguageLast() {
+        Animal animal = Animal.builder()
+                .id(1L)
+                .name(new HashMap<>(Map.of(Language.RUSSIAN, "Лев")))
+                .description(new HashMap<>(Map.of(Language.RUSSIAN, "Большая кошка")))
+                .build();
+
+        when(animalRepository.findById(1L)).thenReturn(Optional.of(animal));
+
+        Exception e = assertThrows(LanguageException.class, () -> animalService.removeLanguage(1L, "RUSSIAN"));
+
+        assertEquals("Невозможно удалить последний язык!", e.getMessage());
+    }
 }

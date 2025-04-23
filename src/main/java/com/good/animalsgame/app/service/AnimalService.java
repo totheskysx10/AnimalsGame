@@ -118,6 +118,10 @@ public class AnimalService {
             throw new LanguageException("Язык " + language + " отсутствует!");
         }
 
+        if (animal.getName().size() == 1) {
+            throw new LanguageException("Невозможно удалить последний язык!");
+        }
+
         animal.getName().remove(languageConst);
         animal.getDescription().remove(languageConst);
 

@@ -3,8 +3,8 @@ package com.good.animalsgame.app.service;
 import com.good.animalsgame.app.repository.AnimalRepository;
 import com.good.animalsgame.domain.Animal;
 import com.good.animalsgame.domain.Language;
-import com.good.animalsgame.exception.AnimalDuplicateException;
-import com.good.animalsgame.exception.AnimalNotFoundException;
+import com.good.animalsgame.exception.EntityDuplicateException;
+import com.good.animalsgame.exception.EntityNotFoundException;
 import com.good.animalsgame.exception.LanguageException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,13 +27,13 @@ class AnimalServiceTest {
     private AnimalService animalService;
 
     @Test
-    void testCreateAnimal() throws AnimalDuplicateException {
+    void testCreateAnimal() throws EntityDuplicateException {
         when(animalRepository.findAll()).thenReturn(List.of());
 
         Animal animal = Animal.builder()
                 .id(1L)
-                .name(Map.of(Language.RUSSIAN, "Лев"))
-                .description(Map.of(Language.RUSSIAN, "Большая кошка"))
+                .names(Map.of(Language.RUSSIAN, "Лев"))
+                .descriptions(Map.of(Language.RUSSIAN, "Большая кошка"))
                 .build();
 
         animalService.createAnimal(animal);
@@ -45,49 +45,49 @@ class AnimalServiceTest {
     void testCreateAnimalDuplicate() {
         Animal animal = Animal.builder()
                 .id(1L)
-                .name(Map.of(Language.RUSSIAN, "Лев"))
-                .description(Map.of(Language.RUSSIAN, "Большая кошка"))
+                .names(Map.of(Language.RUSSIAN, "Лев"))
+                .descriptions(Map.of(Language.RUSSIAN, "Большая кошка"))
                 .build();
 
         Animal animalInBase = Animal.builder()
                 .id(2L)
-                .name(Map.of(Language.RUSSIAN, "Лев", Language.ENGLISH, "Lion"))
-                .description(Map.of(Language.RUSSIAN, "Большая кошка"))
+                .names(Map.of(Language.RUSSIAN, "Лев", Language.ENGLISH, "Lion"))
+                .descriptions(Map.of(Language.RUSSIAN, "Большая кошка"))
                 .build();
 
         when(animalRepository.findAll()).thenReturn(new ArrayList<>(List.of(animalInBase)));
 
-        Exception e = assertThrows(AnimalDuplicateException.class, () -> animalService.createAnimal(animal));
+        Exception e = assertThrows(EntityDuplicateException.class, () -> animalService.createAnimal(animal));
 
         assertEquals("Название животного должно быть уникальным! Даже если хоть по одному из языков есть пересечение, будет ошибка.", e.getMessage());
     }
 
     @Test
-    void testGetAnimalById() throws AnimalNotFoundException {
+    void testGetAnimalById() throws EntityNotFoundException {
         Animal animal = Animal.builder()
                 .id(1L)
-                .name(Map.of(Language.RUSSIAN, "Лев"))
-                .description(Map.of(Language.RUSSIAN, "Большая кошка"))
+                .names(Map.of(Language.RUSSIAN, "Лев"))
+                .descriptions(Map.of(Language.RUSSIAN, "Большая кошка"))
                 .build();
 
         when(animalRepository.findById(1L)).thenReturn(Optional.of(animal));
 
         Animal result = animalService.getAnimalById(1L);
 
-        assertEquals("Лев", result.getName().get(Language.RUSSIAN));
+        assertEquals("Лев", result.getNames().get(Language.RUSSIAN));
     }
 
     @Test
     void testGetAnimalByIdNotFound() {
         when(animalRepository.findById(1L)).thenReturn(Optional.empty());
 
-        Exception e = assertThrows(AnimalNotFoundException.class, () -> animalService.getAnimalById(1L));
+        Exception e = assertThrows(EntityNotFoundException.class, () -> animalService.getAnimalById(1L));
 
         assertEquals("Животное с id 1 не найдено", e.getMessage());
     }
 
     @Test
-    void testDeleteAnimalById() throws AnimalNotFoundException {
+    void testDeleteAnimalById() throws EntityNotFoundException {
         when(animalRepository.existsById(1L)).thenReturn(true);
 
         animalService.deleteAnimalById(1L);
@@ -96,19 +96,19 @@ class AnimalServiceTest {
     }
 
     @Test
-    void testAddLanguage() throws AnimalNotFoundException, LanguageException {
+    void testAddLanguage() throws EntityNotFoundException, LanguageException {
         Animal animal = Animal.builder()
                 .id(1L)
-                .name(new HashMap<>(Map.of(Language.RUSSIAN, "Лев")))
-                .description(new HashMap<>(Map.of(Language.RUSSIAN, "Большая кошка")))
+                .names(new HashMap<>(Map.of(Language.RUSSIAN, "Лев")))
+                .descriptions(new HashMap<>(Map.of(Language.RUSSIAN, "Большая кошка")))
                 .build();
 
         when(animalRepository.findById(1L)).thenReturn(Optional.of(animal));
 
         animalService.addLanguage(1L, "ENGLISH", "Lion", "Big cat");
 
-        assertEquals("Lion", animal.getName().get(Language.ENGLISH));
-        assertEquals("Big cat", animal.getDescription().get(Language.ENGLISH));
+        assertEquals("Lion", animal.getNames().get(Language.ENGLISH));
+        assertEquals("Big cat", animal.getDescriptions().get(Language.ENGLISH));
         verify(animalRepository).save(animal);
     }
 
@@ -116,8 +116,8 @@ class AnimalServiceTest {
     void testAddLanguageInvalid() {
         Animal animal = Animal.builder()
                 .id(1L)
-                .name(new HashMap<>(Map.of(Language.RUSSIAN, "Лев")))
-                .description(new HashMap<>(Map.of(Language.RUSSIAN, "Большая кошка")))
+                .names(new HashMap<>(Map.of(Language.RUSSIAN, "Лев")))
+                .descriptions(new HashMap<>(Map.of(Language.RUSSIAN, "Большая кошка")))
                 .build();
 
         when(animalRepository.findById(1L)).thenReturn(Optional.of(animal));
@@ -131,8 +131,8 @@ class AnimalServiceTest {
     void testAddLanguageAlreadyExists() {
         Animal animal = Animal.builder()
                 .id(1L)
-                .name(new HashMap<>(Map.of(Language.RUSSIAN, "Лев")))
-                .description(new HashMap<>(Map.of(Language.RUSSIAN, "Большая кошка")))
+                .names(new HashMap<>(Map.of(Language.RUSSIAN, "Лев")))
+                .descriptions(new HashMap<>(Map.of(Language.RUSSIAN, "Большая кошка")))
                 .build();
 
         when(animalRepository.findById(1L)).thenReturn(Optional.of(animal));
@@ -143,19 +143,19 @@ class AnimalServiceTest {
     }
 
     @Test
-    void testRemoveLanguage() throws AnimalNotFoundException, LanguageException {
+    void testRemoveLanguage() throws EntityNotFoundException, LanguageException {
         Animal animal = Animal.builder()
                 .id(1L)
-                .name(new HashMap<>(Map.of(Language.RUSSIAN, "Лев", Language.ENGLISH, "Lion")))
-                .description(new HashMap<>(Map.of(Language.RUSSIAN, "Большая кошка", Language.ENGLISH, "Big cat")))
+                .names(new HashMap<>(Map.of(Language.RUSSIAN, "Лев", Language.ENGLISH, "Lion")))
+                .descriptions(new HashMap<>(Map.of(Language.RUSSIAN, "Большая кошка", Language.ENGLISH, "Big cat")))
                 .build();
 
         when(animalRepository.findById(1L)).thenReturn(Optional.of(animal));
 
         animalService.removeLanguage(1L, "ENGLISH");
 
-        assertFalse(animal.getName().containsKey(Language.ENGLISH));
-        assertFalse(animal.getDescription().containsKey(Language.ENGLISH));
+        assertFalse(animal.getNames().containsKey(Language.ENGLISH));
+        assertFalse(animal.getDescriptions().containsKey(Language.ENGLISH));
         verify(animalRepository).save(animal);
     }
 
@@ -163,8 +163,8 @@ class AnimalServiceTest {
     void testRemoveLanguageInvalid() {
         Animal animal = Animal.builder()
                 .id(1L)
-                .name(new HashMap<>(Map.of(Language.RUSSIAN, "Лев")))
-                .description(new HashMap<>(Map.of(Language.RUSSIAN, "Большая кошка")))
+                .names(new HashMap<>(Map.of(Language.RUSSIAN, "Лев")))
+                .descriptions(new HashMap<>(Map.of(Language.RUSSIAN, "Большая кошка")))
                 .build();
 
         when(animalRepository.findById(1L)).thenReturn(Optional.of(animal));
@@ -178,23 +178,23 @@ class AnimalServiceTest {
     void testRemoveLanguageNotExists() {
         Animal animal = Animal.builder()
                 .id(1L)
-                .name(new HashMap<>(Map.of(Language.RUSSIAN, "Лев")))
-                .description(new HashMap<>(Map.of(Language.RUSSIAN, "Большая кошка")))
+                .names(new HashMap<>(Map.of(Language.RUSSIAN, "Лев")))
+                .descriptions(new HashMap<>(Map.of(Language.RUSSIAN, "Большая кошка")))
                 .build();
 
         when(animalRepository.findById(1L)).thenReturn(Optional.of(animal));
 
         Exception e = assertThrows(LanguageException.class, () -> animalService.removeLanguage(1L, "ENGLISH"));
 
-        assertEquals("Язык ENGLISH отсутствует!", e.getMessage());
+        assertEquals("Язык ENGLISH отсутствует у животного!", e.getMessage());
     }
 
     @Test
     void testRemoveLanguageLast() {
         Animal animal = Animal.builder()
                 .id(1L)
-                .name(new HashMap<>(Map.of(Language.RUSSIAN, "Лев")))
-                .description(new HashMap<>(Map.of(Language.RUSSIAN, "Большая кошка")))
+                .names(new HashMap<>(Map.of(Language.RUSSIAN, "Лев")))
+                .descriptions(new HashMap<>(Map.of(Language.RUSSIAN, "Большая кошка")))
                 .build();
 
         when(animalRepository.findById(1L)).thenReturn(Optional.of(animal));

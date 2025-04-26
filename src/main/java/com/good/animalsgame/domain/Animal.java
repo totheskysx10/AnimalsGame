@@ -25,7 +25,7 @@ public class Animal {
     private Long id;
 
     /**
-     * Название животного
+     * Названия животного, язык -> название
      */
     @Getter
     @Column(name = "animal_name")
@@ -35,10 +35,10 @@ public class Animal {
             joinColumns = @JoinColumn(name = "animal_id")
     )
     @MapKeyColumn(name = "language")
-    private Map<Language, String> name;
+    private Map<Language, String> names;
 
     /**
-     * Описание животного
+     * Описания животного, язык -> описание
      */
     @Getter
     @Column(name = "animal_description", columnDefinition = "TEXT")
@@ -48,7 +48,7 @@ public class Animal {
             joinColumns = @JoinColumn(name = "animal_id")
     )
     @MapKeyColumn(name = "language")
-    private Map<Language, String> description;
+    private Map<Language, String> descriptions;
 
     /**
      * Уровни с животным в списке

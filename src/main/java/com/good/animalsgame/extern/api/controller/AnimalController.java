@@ -1,14 +1,12 @@
 package com.good.animalsgame.extern.api.controller;
 
-import com.good.animalsgame.app.repository.AnimalRepository;
 import com.good.animalsgame.app.service.AnimalService;
 import com.good.animalsgame.domain.Animal;
-import com.good.animalsgame.domain.Language;
-import com.good.animalsgame.exception.AnimalDuplicateException;
-import com.good.animalsgame.exception.AnimalNotFoundException;
+import com.good.animalsgame.exception.EntityDuplicateException;
+import com.good.animalsgame.exception.EntityNotFoundException;
 import com.good.animalsgame.exception.LanguageException;
 import com.good.animalsgame.extern.api.assembler.AnimalAssembler;
-import com.good.animalsgame.extern.api.dto.AddLanguageDTO;
+import com.good.animalsgame.extern.api.dto.AddAnimalLanguageDTO;
 import com.good.animalsgame.extern.api.dto.AnimalDTO;
 import com.good.animalsgame.extern.api.dto.ErrorDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -37,7 +35,8 @@ public class AnimalController {
     @Operation(summary = "Создать животное", description = "Создает животное")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Животное успешно создано"),
-            @ApiResponse(responseCode = "409", description = "Животное с таким названием уже есть")
+            @ApiResponse(responseCode = "409", description = "Животное с таким названием уже есть"),
+            @ApiResponse(responseCode = "404", description = "Ошибка языка")
     })
     @Transactional
     @PostMapping
@@ -47,8 +46,10 @@ public class AnimalController {
             animalService.createAnimal(animal);
 
             return new ResponseEntity<>(animalAssembler.toModel(animal), HttpStatus.CREATED);
-        } catch (AnimalDuplicateException e) {
+        } catch (EntityDuplicateException e) {
             return new ResponseEntity<>(new ErrorDTO(e.getMessage()), HttpStatus.CONFLICT);
+        } catch (LanguageException e) {
+            return new ResponseEntity<>(new ErrorDTO(e.getMessage()), HttpStatus.NOT_FOUND);
         }
     }
 
@@ -63,7 +64,7 @@ public class AnimalController {
         try {
             Animal animal = animalService.getAnimalById(id);
             return ResponseEntity.ok(animalAssembler.toModel(animal));
-        } catch (AnimalNotFoundException e) {
+        } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
     }
@@ -79,7 +80,7 @@ public class AnimalController {
         try {
             animalService.deleteAnimalById(id);
             return ResponseEntity.ok().build();
-        } catch (AnimalNotFoundException e) {
+        } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
     }
@@ -92,11 +93,12 @@ public class AnimalController {
     })
     @Transactional
     @PutMapping("/language/add/{id}")
-    public ResponseEntity<Object> addLanguage(@PathVariable Long id, @RequestParam String language, @RequestBody @Valid AddLanguageDTO addLanguageDTO) {
+    public ResponseEntity<Object> addLanguage(@PathVariable Long id, @RequestParam String language,
+                                              @RequestBody @Valid AddAnimalLanguageDTO addAnimalLanguageDTO) {
         try {
-            animalService.addLanguage(id, language, addLanguageDTO.getName(), addLanguageDTO.getDescription());
+            animalService.addLanguage(id, language, addAnimalLanguageDTO.getName(), addAnimalLanguageDTO.getDescription());
             return ResponseEntity.ok().build();
-        } catch (AnimalNotFoundException e) {
+        } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         } catch (LanguageException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorDTO(e.getMessage()));
@@ -115,7 +117,7 @@ public class AnimalController {
         try {
             animalService.removeLanguage(id, language);
             return ResponseEntity.ok().build();
-        } catch (AnimalNotFoundException e) {
+        } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         } catch (LanguageException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorDTO(e.getMessage()));

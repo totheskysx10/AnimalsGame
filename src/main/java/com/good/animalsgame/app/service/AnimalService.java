@@ -3,8 +3,8 @@ package com.good.animalsgame.app.service;
 import com.good.animalsgame.app.repository.AnimalRepository;
 import com.good.animalsgame.domain.Animal;
 import com.good.animalsgame.domain.Language;
-import com.good.animalsgame.exception.AnimalDuplicateException;
-import com.good.animalsgame.exception.AnimalNotFoundException;
+import com.good.animalsgame.exception.EntityDuplicateException;
+import com.good.animalsgame.exception.EntityNotFoundException;
 import com.good.animalsgame.exception.LanguageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,17 +30,15 @@ public class AnimalService {
      * Создаёт животное
      *
      * @param animal животное
-     * @throws AnimalDuplicateException если такое животное уже есть
+     * @throws EntityDuplicateException если такое животное уже есть
      */
-    public Animal createAnimal(Animal animal) throws AnimalDuplicateException {
-        if (isDuplicateAnimal(animal.getName())) {
-            throw new AnimalDuplicateException("Название животного должно быть уникальным! Даже если хоть по одному из языков есть пересечение, будет ошибка.");
+    public void createAnimal(Animal animal) throws EntityDuplicateException {
+        if (isDuplicateAnimal(animal.getNames())) {
+            throw new EntityDuplicateException("Название животного должно быть уникальным! Даже если хоть по одному из языков есть пересечение, будет ошибка.");
         }
 
         animalRepository.save(animal);
         log.info("Создано животное: {}", animal.getId());
-
-        return animal;
     }
 
     /**
@@ -48,9 +46,9 @@ public class AnimalService {
      *
      * @param id идентификатор
      */
-    public Animal getAnimalById(Long id) throws AnimalNotFoundException {
+    public Animal getAnimalById(Long id) throws EntityNotFoundException {
         Optional<Animal> foundAnimal = animalRepository.findById(id);
-        return foundAnimal.orElseThrow(() -> new AnimalNotFoundException(String.format("Животное с id %s не найдено", id)));
+        return foundAnimal.orElseThrow(() -> new EntityNotFoundException(String.format("Животное с id %s не найдено", id)));
     }
 
     /**
@@ -58,12 +56,12 @@ public class AnimalService {
      *
      * @param id идентификатор
      */
-    public void deleteAnimalById(Long id) throws AnimalNotFoundException {
+    public void deleteAnimalById(Long id) throws EntityNotFoundException {
         if (animalRepository.existsById(id)) {
             animalRepository.deleteById(id);
             log.info("Удалено животное: {}", id);
         } else {
-            throw new AnimalNotFoundException(String.format("Животное с id %s не найдено", id));
+            throw new EntityNotFoundException(String.format("Животное с id %s не найдено", id));
         }
     }
 
@@ -73,9 +71,9 @@ public class AnimalService {
      * @param language язык
      * @param name название
      * @param description описание
-     * @throws LanguageException если язык уже есть
+     * @throws LanguageException если язык уже есть или если не найден
      */
-    public void addLanguage(Long id, String language, String name, String description) throws AnimalNotFoundException, LanguageException {
+    public void addLanguage(Long id, String language, String name, String description) throws EntityNotFoundException, LanguageException {
         Animal animal = getAnimalById(id);
 
         Language languageConst;
@@ -86,24 +84,24 @@ public class AnimalService {
             throw new LanguageException("Нет языка " + language);
         }
 
-        if (animal.getName().containsKey(languageConst)) {
+        if (animal.getNames().containsKey(languageConst)) {
             throw new LanguageException("Язык " + language + " уже есть!");
         }
 
-        animal.getName().put(languageConst, name);
-        animal.getDescription().put(languageConst, description);
+        animal.getNames().put(languageConst, name);
+        animal.getDescriptions().put(languageConst, description);
 
         animalRepository.save(animal);
-        log.info("Добавлен язык {} к уровню {}", language, id);
+        log.info("Добавлен язык {} к животному {}", language, id);
     }
 
     /**
      * Убирает у животного язык
      * @param id идентификатор
      * @param language язык
-     * @throws LanguageException если язык отсутствует
+     * @throws LanguageException если язык отсутствует или если не найден
      */
-    public void removeLanguage(Long id, String language) throws AnimalNotFoundException, LanguageException {
+    public void removeLanguage(Long id, String language) throws EntityNotFoundException, LanguageException {
         Animal animal = getAnimalById(id);
 
         Language languageConst;
@@ -114,19 +112,19 @@ public class AnimalService {
             throw new LanguageException("Нет языка " + language);
         }
 
-        if (!animal.getName().containsKey(languageConst)) {
-            throw new LanguageException("Язык " + language + " отсутствует!");
+        if (!animal.getNames().containsKey(languageConst)) {
+            throw new LanguageException("Язык " + language + " отсутствует у животного!");
         }
 
-        if (animal.getName().size() == 1) {
+        if (animal.getNames().size() == 1) {
             throw new LanguageException("Невозможно удалить последний язык!");
         }
 
-        animal.getName().remove(languageConst);
-        animal.getDescription().remove(languageConst);
+        animal.getNames().remove(languageConst);
+        animal.getDescriptions().remove(languageConst);
 
         animalRepository.save(animal);
-        log.info("Удалён язык {} у уровня {}", language, id);
+        log.info("Удалён язык {} у животного {}", language, id);
     }
 
     /**
@@ -150,7 +148,7 @@ public class AnimalService {
         List<Animal> allAnimals = animalRepository.findAll();
 
         Set<String> existingNameSet = allAnimals.stream()
-                .flatMap(animal -> animal.getName().values().stream())
+                .flatMap(animal -> animal.getNames().values().stream())
                 .map(this::formatAnimalName)
                 .collect(Collectors.toSet());
 

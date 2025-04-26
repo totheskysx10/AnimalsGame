@@ -19,9 +19,10 @@ public class AnimalDTO extends RepresentationModel<AnimalDTO> {
     private Long id;
 
     @NotNull
-    @Schema(description = "Название животного", example = "RUSSIAN - Лев")
-    private Map<String, String> name;
+    @Schema(description = "Названия животного на языках", example = "RUSSIAN - Лев")
+    private Map<String, String> names;
 
-    @Schema(description = "Описание животного")
-    private Map<String, String> description;
+    @Schema(description = "Описания животного на языках")
+    @NotNull
+    private Map<String, String> descriptions;
 }

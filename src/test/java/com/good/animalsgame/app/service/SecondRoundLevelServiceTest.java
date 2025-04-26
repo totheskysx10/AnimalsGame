@@ -38,8 +38,8 @@ class SecondRoundLevelServiceTest {
     void testCreateLevelAnswerMatchQuestion() throws IncorrectLevelException {
         Animal animal = Animal.builder()
                 .id(1L)
-                .name(Map.of(Language.RUSSIAN, "Лев"))
-                .description(Map.of(Language.RUSSIAN, "Большая кошка"))
+                .names(Map.of(Language.RUSSIAN, "Лев"))
+                .descriptions(Map.of(Language.RUSSIAN, "Большая кошка"))
                 .build();
 
         SecondRoundLevel level = SecondRoundLevel.builder()
@@ -59,15 +59,14 @@ class SecondRoundLevelServiceTest {
     @Test
     void testCreateLevelAnswerNotMatchQuestion() throws IncorrectLevelException {
         Animal questionAnimal = Animal.builder()
-                .id(1L)
-                .name(Map.of(Language.RUSSIAN, "Лев"))
-                .description(Map.of(Language.RUSSIAN, "Большая кошка"))
+                .id(1L).names(Map.of(Language.RUSSIAN, "Лев"))
+                .descriptions(Map.of(Language.RUSSIAN, "Большая кошка"))
                 .build();
 
         Animal correctAnimal = Animal.builder()
                 .id(2L)
-                .name(Map.of(Language.RUSSIAN, "Тигр"))
-                .description(Map.of(Language.RUSSIAN, "Большая кошка"))
+                .names(Map.of(Language.RUSSIAN, "Тигр"))
+                .descriptions(Map.of(Language.RUSSIAN, "Большая кошка"))
                 .build();
 
         SecondRoundLevel level = SecondRoundLevel.builder()
@@ -88,8 +87,8 @@ class SecondRoundLevelServiceTest {
     void testCreateLevelAnswerMatchAnimalsNotEmpty() {
         Animal animal = Animal.builder()
                 .id(1L)
-                .name(Map.of(Language.RUSSIAN, "Лев"))
-                .description(Map.of(Language.RUSSIAN, "Большая кошка"))
+                .names(Map.of(Language.RUSSIAN, "Лев"))
+                .descriptions(Map.of(Language.RUSSIAN, "Большая кошка"))
                 .build();
 
         SecondRoundLevel level = SecondRoundLevel.builder()
@@ -107,14 +106,14 @@ class SecondRoundLevelServiceTest {
     void testCreateLevelAnswerNotMatchAnimalsEmpty() {
         Animal questionAnimal = Animal.builder()
                 .id(1L)
-                .name(Map.of(Language.RUSSIAN, "Лев"))
-                .description(Map.of(Language.RUSSIAN, "Большая кошка"))
+                .names(Map.of(Language.RUSSIAN, "Лев"))
+                .descriptions(Map.of(Language.RUSSIAN, "Большая кошка"))
                 .build();
 
         Animal correctAnimal = Animal.builder()
                 .id(2L)
-                .name(Map.of(Language.RUSSIAN, "Тигр"))
-                .description(Map.of(Language.RUSSIAN, "Большая кошка"))
+                .names(Map.of(Language.RUSSIAN, "Тигр"))
+                .descriptions(Map.of(Language.RUSSIAN, "Большая кошка"))
                 .build();
 
         SecondRoundLevel level = SecondRoundLevel.builder()
@@ -129,12 +128,12 @@ class SecondRoundLevelServiceTest {
     }
 
     @Test
-    void testIsCorrectYesNoAnswerMatchQuestion() throws LevelNotFoundException {
+    void testIsCorrectYesNoAnswerMatchQuestion() throws EntityNotFoundException {
         Long levelId = 1L;
         Animal animal = Animal.builder()
                 .id(1L)
-                .name(Map.of(Language.RUSSIAN, "Лев"))
-                .description(Map.of(Language.RUSSIAN, "Большая кошка"))
+                .names(Map.of(Language.RUSSIAN, "Лев"))
+                .descriptions(Map.of(Language.RUSSIAN, "Большая кошка"))
                 .build();
 
         SecondRoundLevel level = SecondRoundLevel.builder()
@@ -149,18 +148,18 @@ class SecondRoundLevelServiceTest {
     }
 
     @Test
-    void testIsCorrectYesNoAnswerNotMatchQuestion() throws LevelNotFoundException {
+    void testIsCorrectYesNoAnswerNotMatchQuestion() throws EntityNotFoundException {
         Long levelId = 1L;
         Animal questionAnimal = Animal.builder()
                 .id(1L)
-                .name(Map.of(Language.RUSSIAN, "Лев"))
-                .description(Map.of(Language.RUSSIAN, "Большая кошка"))
+                .names(Map.of(Language.RUSSIAN, "Лев"))
+                .descriptions(Map.of(Language.RUSSIAN, "Большая кошка"))
                 .build();
 
         Animal correctAnimal = Animal.builder()
                 .id(2L)
-                .name(Map.of(Language.RUSSIAN, "Тигр"))
-                .description(Map.of(Language.RUSSIAN, "Большая кошка"))
+                .names(Map.of(Language.RUSSIAN, "Тигр"))
+                .descriptions(Map.of(Language.RUSSIAN, "Большая кошка"))
                 .build();
 
         SecondRoundLevel level = SecondRoundLevel.builder()
@@ -175,7 +174,7 @@ class SecondRoundLevelServiceTest {
     }
 
     @Test
-    void testGetLevelById() throws LevelNotFoundException {
+    void testGetLevelById() throws EntityNotFoundException {
         Long levelId = 1L;
         SecondRoundLevel level = new SecondRoundLevel();
         when(levelRepository.findById(levelId)).thenReturn(Optional.of(level));
@@ -190,13 +189,13 @@ class SecondRoundLevelServiceTest {
         Long levelId = 1L;
         when(levelRepository.findById(levelId)).thenReturn(Optional.empty());
 
-        Exception e = assertThrows(LevelNotFoundException.class, () -> secondRoundLevelService.getLevelById(levelId));
+        Exception e = assertThrows(EntityNotFoundException.class, () -> secondRoundLevelService.getLevelById(levelId));
 
         assertEquals("Уровень с id 1 не найден", e.getMessage());
     }
 
     @Test
-    void testDeleteLevel() throws LevelNotFoundException {
+    void testDeleteLevel() throws EntityNotFoundException {
         Long levelId = 1L;
         when(levelRepository.existsById(levelId)).thenReturn(true);
 
@@ -206,7 +205,7 @@ class SecondRoundLevelServiceTest {
     }
 
     @Test
-    void testGetRandomLevel() throws LevelNotFoundException, NoSuchRoundException, NoLevelsLeftException {
+    void testGetRandomLevel() throws EntityNotFoundException, NoSuchRoundException, NoLevelsLeftException {
         int round = 2;
         Long levelId = 1L;
         SecondRoundLevel level = new SecondRoundLevel();
@@ -232,13 +231,13 @@ class SecondRoundLevelServiceTest {
     }
 
     @Test
-    void testIsCorrectAnswer() throws LevelNotFoundException, AnimalNotFoundException {
+    void testIsCorrectAnswer() throws EntityNotFoundException, EntityNotFoundException {
         Long levelId = 1L;
         Long userAnswer = 1L;
         Animal correctAnimal = Animal.builder()
                 .id(1L)
-                .name(Map.of(Language.RUSSIAN, "Лев"))
-                .description(Map.of(Language.RUSSIAN, "Большая кошка"))
+                .names(Map.of(Language.RUSSIAN, "Лев"))
+                .descriptions(Map.of(Language.RUSSIAN, "Большая кошка"))
                 .build();
 
         SecondRoundLevel level = SecondRoundLevel.builder()
@@ -252,12 +251,12 @@ class SecondRoundLevelServiceTest {
     }
 
     @Test
-    void testGetLevelCorrectAnimal() throws LevelNotFoundException {
+    void testGetLevelCorrectAnimal() throws EntityNotFoundException {
         Long levelId = 1L;
         Animal correctAnimal = Animal.builder()
                 .id(1L)
-                .name(Map.of(Language.RUSSIAN, "Лев"))
-                .description(Map.of(Language.RUSSIAN, "Большая кошка"))
+                .names(Map.of(Language.RUSSIAN, "Лев"))
+                .descriptions(Map.of(Language.RUSSIAN, "Большая кошка"))
                 .build();
 
         SecondRoundLevel level = SecondRoundLevel.builder()

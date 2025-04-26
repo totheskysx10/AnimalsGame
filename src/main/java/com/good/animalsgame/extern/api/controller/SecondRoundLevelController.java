@@ -55,7 +55,7 @@ public class SecondRoundLevelController {
             return new ResponseEntity<>(secondRoundLevelAssembler.toModel(secondRoundLevel), HttpStatus.CREATED);
         } catch (IncorrectLevelException e) {
             return new ResponseEntity<>(new ErrorDTO(e.getMessage()), HttpStatus.BAD_REQUEST);
-        } catch (AnimalNotFoundException e) {
+        } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(new ErrorDTO(e.getMessage()), HttpStatus.NOT_FOUND);
         } catch (IOException e) {
             return new ResponseEntity<>(new ErrorDTO(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -73,7 +73,7 @@ public class SecondRoundLevelController {
         try {
             SecondRoundLevel secondRoundLevel = secondRoundLevelService.getLevelById(id);
             return ResponseEntity.ok(secondRoundLevelAssembler.toModel(secondRoundLevel));
-        } catch (LevelNotFoundException e) {
+        } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
     }
@@ -89,7 +89,7 @@ public class SecondRoundLevelController {
         try {
             secondRoundLevelService.deleteLevel(id);
             return ResponseEntity.ok().build();
-        } catch (LevelNotFoundException e) {
+        } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
     }
@@ -106,7 +106,7 @@ public class SecondRoundLevelController {
         try {
             SecondRoundLevel secondRoundLevel = secondRoundLevelService.getRandomLevel(SECOND_ROUND_NUMBER);
             return ResponseEntity.ok(secondRoundLevelAssembler.toModel(secondRoundLevel));
-        } catch (LevelNotFoundException | NoSuchRoundException e) {
+        } catch (EntityNotFoundException | NoSuchRoundException e) {
             return ResponseEntity.notFound().build();
         } catch (NoLevelsLeftException e) {
             return ResponseEntity.noContent().build();
@@ -125,7 +125,7 @@ public class SecondRoundLevelController {
             Map<String, Boolean> response = new HashMap<>();
             response.put("isCorrect", isCorrect);
             return ResponseEntity.ok(response);
-        } catch (LevelNotFoundException | AnimalNotFoundException e) {
+        } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
     }
@@ -142,7 +142,7 @@ public class SecondRoundLevelController {
             Map<String, Boolean> response = new HashMap<>();
             response.put("isCorrect", isCorrect);
             return ResponseEntity.ok(response);
-        } catch (LevelNotFoundException e) {
+        } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
     }
@@ -160,7 +160,7 @@ public class SecondRoundLevelController {
             Animal animal = secondRoundLevelService.getLevelCorrectAnimal(id);
             response.put("id", animal.getId());
             return ResponseEntity.ok(response);
-        } catch (LevelNotFoundException e) {
+        } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
     }

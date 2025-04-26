@@ -39,8 +39,8 @@ class FirstRoundLevelServiceTest {
     void testCreateLevel() throws IncorrectLevelException {
         Animal correctAnimal = Animal.builder()
                 .id(1L)
-                .name(Map.of(Language.RUSSIAN, "Лев"))
-                .description(Map.of(Language.RUSSIAN, "Большая кошка"))
+                .names(Map.of(Language.RUSSIAN, "Лев"))
+                .descriptions(Map.of(Language.RUSSIAN, "Большая кошка"))
                 .build();
 
         List<Animal> animals = Collections.nCopies(4, correctAnimal);
@@ -61,8 +61,8 @@ class FirstRoundLevelServiceTest {
     void testCreateLevelWithIncorrectAnimalListSize() {
         Animal correctAnimal = Animal.builder()
                 .id(1L)
-                .name(Map.of(Language.RUSSIAN, "Лев"))
-                .description(Map.of(Language.RUSSIAN, "Большая кошка"))
+                .names(Map.of(Language.RUSSIAN, "Лев"))
+                .descriptions(Map.of(Language.RUSSIAN, "Большая кошка"))
                 .build();
 
         List<Animal> animals = Collections.nCopies(3, correctAnimal);
@@ -81,14 +81,14 @@ class FirstRoundLevelServiceTest {
     void testCreateLevelWithoutCorrectAnimalInList() {
         Animal correctAnimal = Animal.builder()
                 .id(1L)
-                .name(Map.of(Language.RUSSIAN, "Лев"))
-                .description(Map.of(Language.RUSSIAN, "Большая кошка"))
+                .names(Map.of(Language.RUSSIAN, "Лев"))
+                .descriptions(Map.of(Language.RUSSIAN, "Большая кошка"))
                 .build();
 
         Animal otherAnimal = Animal.builder()
                 .id(2L)
-                .name(Map.of(Language.RUSSIAN, "Тигр"))
-                .description(Map.of(Language.RUSSIAN, "Большая кошка"))
+                .names(Map.of(Language.RUSSIAN, "Тигр"))
+                .descriptions(Map.of(Language.RUSSIAN, "Большая кошка"))
                 .build();
 
         List<Animal> animals = Collections.nCopies(4, otherAnimal);
@@ -104,7 +104,7 @@ class FirstRoundLevelServiceTest {
     }
 
     @Test
-    void testGetLevelById() throws LevelNotFoundException {
+    void testGetLevelById() throws EntityNotFoundException {
         Long levelId = 1L;
         FirstRoundLevel level = new FirstRoundLevel();
         when(levelRepository.findById(levelId)).thenReturn(Optional.of(level));
@@ -119,13 +119,13 @@ class FirstRoundLevelServiceTest {
         Long levelId = 1L;
         when(levelRepository.findById(levelId)).thenReturn(Optional.empty());
 
-        Exception e = assertThrows(LevelNotFoundException.class, () -> firstRoundLevelService.getLevelById(levelId));
+        Exception e = assertThrows(EntityNotFoundException.class, () -> firstRoundLevelService.getLevelById(levelId));
 
         assertEquals("Уровень с id 1 не найден", e.getMessage());
     }
 
     @Test
-    void testDeleteLevel() throws LevelNotFoundException {
+    void testDeleteLevel() throws EntityNotFoundException {
         Long levelId = 1L;
         when(levelRepository.existsById(levelId)).thenReturn(true);
 
@@ -135,7 +135,7 @@ class FirstRoundLevelServiceTest {
     }
 
     @Test
-    void testGetRandomLevel() throws LevelNotFoundException, NoSuchRoundException, NoLevelsLeftException {
+    void testGetRandomLevel() throws EntityNotFoundException, NoSuchRoundException, NoLevelsLeftException {
         int round = 1;
         Long levelId = 1L;
         FirstRoundLevel level = new FirstRoundLevel();
@@ -161,13 +161,13 @@ class FirstRoundLevelServiceTest {
     }
 
     @Test
-    void testIsCorrectAnswer() throws LevelNotFoundException, AnimalNotFoundException {
+    void testIsCorrectAnswer() throws EntityNotFoundException, EntityNotFoundException {
         Long levelId = 1L;
         Long userAnswer = 1L;
         Animal correctAnimal = Animal.builder()
                 .id(1L)
-                .name(Map.of(Language.RUSSIAN, "Лев"))
-                .description(Map.of(Language.RUSSIAN, "Большая кошка"))
+                .names(Map.of(Language.RUSSIAN, "Лев"))
+                .descriptions(Map.of(Language.RUSSIAN, "Большая кошка"))
                 .build();
 
         FirstRoundLevel level = FirstRoundLevel.builder()
@@ -181,12 +181,12 @@ class FirstRoundLevelServiceTest {
     }
 
     @Test
-    void testGetLevelCorrectAnimal() throws LevelNotFoundException {
+    void testGetLevelCorrectAnimal() throws EntityNotFoundException {
         Long levelId = 1L;
         Animal correctAnimal = Animal.builder()
                 .id(1L)
-                .name(Map.of(Language.RUSSIAN, "Лев"))
-                .description(Map.of(Language.RUSSIAN, "Большая кошка"))
+                .names(Map.of(Language.RUSSIAN, "Лев"))
+                .descriptions(Map.of(Language.RUSSIAN, "Большая кошка"))
                 .build();
 
         FirstRoundLevel level = FirstRoundLevel.builder()

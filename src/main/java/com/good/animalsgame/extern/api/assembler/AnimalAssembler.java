@@ -2,6 +2,7 @@ package com.good.animalsgame.extern.api.assembler;
 
 import com.good.animalsgame.domain.Animal;
 import com.good.animalsgame.domain.Language;
+import com.good.animalsgame.exception.LanguageException;
 import com.good.animalsgame.extern.api.controller.AnimalController;
 import com.good.animalsgame.extern.api.dto.AnimalDTO;
 import lombok.NonNull;
@@ -23,21 +24,24 @@ public class AnimalAssembler extends RepresentationModelAssemblerSupport<Animal,
         AnimalDTO animalDTO = instantiateModel(animal);
 
         animalDTO.setId(animal.getId());
-        animalDTO.setName(animal.getName().entrySet().stream()
+        animalDTO.setNames(animal.getNames().entrySet().stream()
                 .collect(Collectors.toMap(e -> e.getKey().toString(), Map.Entry::getValue)));
-        animalDTO.setDescription(animal.getDescription().entrySet().stream()
+        animalDTO.setDescriptions(animal.getDescriptions().entrySet().stream()
                 .collect(Collectors.toMap(e -> e.getKey().toString(), Map.Entry::getValue)));
 
         return animalDTO;
     }
 
-    public Animal toEntity(AnimalDTO animalDTO) {
-
-        return Animal.builder()
-                .name(animalDTO.getName().entrySet().stream()
-                        .collect(Collectors.toMap(e -> Language.valueOf(e.getKey()), Map.Entry::getValue)))
-                .description(animalDTO.getDescription().entrySet().stream()
-                        .collect(Collectors.toMap(e -> Language.valueOf(e.getKey()), Map.Entry::getValue)))
-                .build();
+    public Animal toEntity(AnimalDTO animalDTO) throws LanguageException {
+        try {
+            return Animal.builder()
+                    .names(animalDTO.getNames().entrySet().stream()
+                            .collect(Collectors.toMap(e -> Language.valueOf(e.getKey()), Map.Entry::getValue)))
+                    .descriptions(animalDTO.getDescriptions().entrySet().stream()
+                            .collect(Collectors.toMap(e -> Language.valueOf(e.getKey()), Map.Entry::getValue)))
+                    .build();
+        } catch (IllegalArgumentException e) {
+            throw new LanguageException("Не найден язык! " + e.getMessage());
+        }
     }
 }

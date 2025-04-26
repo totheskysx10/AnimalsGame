@@ -3,7 +3,7 @@ package com.good.animalsgame.extern.api.assembler;
 import com.good.animalsgame.app.service.AnimalService;
 import com.good.animalsgame.domain.Animal;
 import com.good.animalsgame.domain.SecondRoundLevel;
-import com.good.animalsgame.exception.AnimalNotFoundException;
+import com.good.animalsgame.exception.EntityNotFoundException;
 import com.good.animalsgame.extern.api.controller.SecondRoundLevelController;
 import com.good.animalsgame.extern.api.dto.SecondRoundLevelDTO;
 import lombok.NonNull;
@@ -50,7 +50,7 @@ public class SecondRoundLevelAssembler extends RepresentationModelAssemblerSuppo
         return secondRoundLevelDTO;
     }
 
-    public SecondRoundLevel toEntity(SecondRoundLevelDTO secondRoundLevelDTO) throws AnimalNotFoundException, IOException {
+    public SecondRoundLevel toEntity(SecondRoundLevelDTO secondRoundLevelDTO) throws EntityNotFoundException, IOException {
         List<Animal> animals = new ArrayList<>();
         for (Long animalId : secondRoundLevelDTO.getAnimalIds()) {
             Animal animal = animalService.getAnimalById(animalId);

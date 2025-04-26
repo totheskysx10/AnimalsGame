@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Schema(description = "DTO для добавления языка животного")
-public class AddLanguageDTO {
+public class AddAnimalLanguageDTO {
 
     @NotNull
     @Schema(description = "Название животного", example = "Лев")

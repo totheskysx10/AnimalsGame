@@ -15,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -45,7 +46,7 @@ class SecondRoundLevelServiceTest {
         SecondRoundLevel level = SecondRoundLevel.builder()
                 .animalInQuestion(animal)
                 .correctAnimal(animal)
-                .animals(Collections.emptyList())
+                .animals(Collections.emptySet())
                 .build();
 
         when(levelRepository.save(level)).thenReturn(level);
@@ -58,21 +59,31 @@ class SecondRoundLevelServiceTest {
 
     @Test
     void testCreateLevelAnswerNotMatchQuestion() throws IncorrectLevelException {
-        Animal questionAnimal = Animal.builder()
-                .id(1L).names(Map.of(Language.RUSSIAN, "Лев"))
+        Animal animal1 = Animal.builder()
+                .id(1L)
+                .names(Map.of(Language.RUSSIAN, "Лев"))
                 .descriptions(Map.of(Language.RUSSIAN, "Большая кошка"))
                 .build();
-
-        Animal correctAnimal = Animal.builder()
+        Animal animal2 = Animal.builder()
                 .id(2L)
-                .names(Map.of(Language.RUSSIAN, "Тигр"))
+                .names(Map.of(Language.RUSSIAN, "Лев"))
+                .descriptions(Map.of(Language.RUSSIAN, "Большая кошка"))
+                .build();
+        Animal animal3 = Animal.builder()
+                .id(3L)
+                .names(Map.of(Language.RUSSIAN, "Лев"))
+                .descriptions(Map.of(Language.RUSSIAN, "Большая кошка"))
+                .build();
+        Animal animal4 = Animal.builder()
+                .id(4L)
+                .names(Map.of(Language.RUSSIAN, "Лев"))
                 .descriptions(Map.of(Language.RUSSIAN, "Большая кошка"))
                 .build();
 
         SecondRoundLevel level = SecondRoundLevel.builder()
-                .animalInQuestion(questionAnimal)
-                .correctAnimal(correctAnimal)
-                .animals(Collections.nCopies(4, correctAnimal))
+                .animalInQuestion(animal2)
+                .correctAnimal(animal3)
+                .animals(Set.of(animal1, animal2, animal3, animal4))
                 .build();
 
         when(levelRepository.save(level)).thenReturn(level);
@@ -85,16 +96,31 @@ class SecondRoundLevelServiceTest {
 
     @Test
     void testCreateLevelAnswerMatchAnimalsNotEmpty() {
-        Animal animal = Animal.builder()
+        Animal animal1 = Animal.builder()
                 .id(1L)
+                .names(Map.of(Language.RUSSIAN, "Лев"))
+                .descriptions(Map.of(Language.RUSSIAN, "Большая кошка"))
+                .build();
+        Animal animal2 = Animal.builder()
+                .id(2L)
+                .names(Map.of(Language.RUSSIAN, "Лев"))
+                .descriptions(Map.of(Language.RUSSIAN, "Большая кошка"))
+                .build();
+        Animal animal3 = Animal.builder()
+                .id(3L)
+                .names(Map.of(Language.RUSSIAN, "Лев"))
+                .descriptions(Map.of(Language.RUSSIAN, "Большая кошка"))
+                .build();
+        Animal animal4 = Animal.builder()
+                .id(4L)
                 .names(Map.of(Language.RUSSIAN, "Лев"))
                 .descriptions(Map.of(Language.RUSSIAN, "Большая кошка"))
                 .build();
 
         SecondRoundLevel level = SecondRoundLevel.builder()
-                .animalInQuestion(animal)
-                .correctAnimal(animal)
-                .animals(Collections.nCopies(4, animal))
+                .animalInQuestion(animal3)
+                .correctAnimal(animal3)
+                .animals(Set.of(animal1, animal2, animal3, animal4))
                 .build();
 
         Exception e = assertThrows(IncorrectLevelException.class, () -> secondRoundLevelService.createLevel(level));
@@ -119,7 +145,7 @@ class SecondRoundLevelServiceTest {
         SecondRoundLevel level = SecondRoundLevel.builder()
                 .animalInQuestion(questionAnimal)
                 .correctAnimal(correctAnimal)
-                .animals(Collections.emptyList())
+                .animals(Collections.emptySet())
                 .build();
 
         Exception e = assertThrows(IncorrectLevelException.class, () -> secondRoundLevelService.createLevel(level));

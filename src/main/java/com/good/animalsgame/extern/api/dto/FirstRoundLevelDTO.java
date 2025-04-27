@@ -11,7 +11,7 @@ import lombok.Data;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
+import java.util.Set;
 
 @Data
 @Schema(description = "DTO для уровня первого раунда")
@@ -23,7 +23,7 @@ public class FirstRoundLevelDTO extends RepresentationModel<FirstRoundLevelDTO> 
     @NotNull
     @NotEmpty
     @Schema(description = "Список возможных ID животных", example = "['1', '11', '12', '13']")
-    private List<Long> animalIds;
+    private Set<Long> animalIds;
 
     @NotNull
     @Schema(description = "ID животного - верный ответ", example = "1")

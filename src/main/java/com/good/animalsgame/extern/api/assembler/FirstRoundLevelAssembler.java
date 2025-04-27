@@ -11,8 +11,8 @@ import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSuppor
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -37,7 +37,7 @@ public class FirstRoundLevelAssembler extends RepresentationModelAssemblerSuppor
         firstRoundLevelDTO.setAnimalIds(firstRoundLevel.getAnimals()
                 .stream()
                 .map(Animal::getId)
-                .collect(Collectors.toList()));
+                .collect(Collectors.toSet()));
         firstRoundLevelDTO.setCorrectAnimalId(firstRoundLevel.getCorrectAnimal().getId());
         firstRoundLevelDTO.setAnimalCoordinates(firstRoundLevel.getAnimalCoordinates());
 
@@ -48,7 +48,7 @@ public class FirstRoundLevelAssembler extends RepresentationModelAssemblerSuppor
     }
 
     public FirstRoundLevel toEntity(FirstRoundLevelDTO firstRoundLevelDTO) throws EntityNotFoundException, IOException {
-        List<Animal> animals = new ArrayList<>();
+        Set<Animal> animals = new HashSet<>();
         for (Long animalId : firstRoundLevelDTO.getAnimalIds()) {
             Animal animal = animalService.getAnimalById(animalId);
             animals.add(animal);

@@ -5,6 +5,7 @@ import com.good.animalsgame.app.repository.FirstRoundLevelRepository;
 import com.good.animalsgame.domain.Animal;
 import com.good.animalsgame.domain.FirstRoundLevel;
 import com.good.animalsgame.domain.Language;
+import com.good.animalsgame.domain.SecondRoundLevel;
 import com.good.animalsgame.exception.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,10 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -37,16 +35,32 @@ class FirstRoundLevelServiceTest {
 
     @Test
     void testCreateLevel() throws IncorrectLevelException {
-        Animal correctAnimal = Animal.builder()
+        Animal animal1 = Animal.builder()
                 .id(1L)
                 .names(Map.of(Language.RUSSIAN, "Лев"))
                 .descriptions(Map.of(Language.RUSSIAN, "Большая кошка"))
                 .build();
+        Animal animal2 = Animal.builder()
+                .id(2L)
+                .names(Map.of(Language.RUSSIAN, "Лев"))
+                .descriptions(Map.of(Language.RUSSIAN, "Большая кошка"))
+                .build();
+        Animal animal3 = Animal.builder()
+                .id(3L)
+                .names(Map.of(Language.RUSSIAN, "Лев"))
+                .descriptions(Map.of(Language.RUSSIAN, "Большая кошка"))
+                .build();
+        Animal animal4 = Animal.builder()
+                .id(4L)
+                .names(Map.of(Language.RUSSIAN, "Лев"))
+                .descriptions(Map.of(Language.RUSSIAN, "Большая кошка"))
+                .build();
 
-        List<Animal> animals = Collections.nCopies(4, correctAnimal);
+        Set<Animal> animalSet = Set.of(animal1, animal2, animal3, animal4);
+
         FirstRoundLevel level = FirstRoundLevel.builder()
-                .animals(animals)
-                .correctAnimal(correctAnimal)
+                .animals(animalSet)
+                .correctAnimal(animal3)
                 .build();
 
         when(levelRepository.save(level)).thenReturn(level);
@@ -58,43 +72,70 @@ class FirstRoundLevelServiceTest {
     }
 
     @Test
-    void testCreateLevelWithIncorrectAnimalListSize() {
-        Animal correctAnimal = Animal.builder()
+    void testCreateLevelWithIncorrectAnimalSetSize() {
+        Animal animal1 = Animal.builder()
                 .id(1L)
                 .names(Map.of(Language.RUSSIAN, "Лев"))
                 .descriptions(Map.of(Language.RUSSIAN, "Большая кошка"))
                 .build();
-
-        List<Animal> animals = Collections.nCopies(3, correctAnimal);
-        FirstRoundLevel level = FirstRoundLevel.builder()
-                .animals(animals)
-                .correctAnimal(correctAnimal)
+        Animal animal2 = Animal.builder()
+                .id(2L)
+                .names(Map.of(Language.RUSSIAN, "Лев"))
+                .descriptions(Map.of(Language.RUSSIAN, "Большая кошка"))
                 .build();
+        Animal animal3 = Animal.builder()
+                .id(3L)
+                .names(Map.of(Language.RUSSIAN, "Лев"))
+                .descriptions(Map.of(Language.RUSSIAN, "Большая кошка"))
+                .build();
+
+        Set<Animal> animalSet = Set.of(animal1, animal2, animal3);
+
+        FirstRoundLevel level = FirstRoundLevel.builder()
+                .animals(animalSet)
+                .correctAnimal(animal3)
+                .build();
+
 
         Exception e = assertThrows(IncorrectLevelException.class,
                 () -> firstRoundLevelService.createLevel(level));
 
-        assertEquals("Список животных должен содержать ровно 4 элемента.", e.getMessage());
+        assertEquals("Список животных должен содержать ровно 4 элемента. Без дубликатов.", e.getMessage());
     }
 
     @Test
-    void testCreateLevelWithoutCorrectAnimalInList() {
-        Animal correctAnimal = Animal.builder()
+    void testCreateLevelWithoutCorrectAnimalInSet() {
+        Animal animal1 = Animal.builder()
                 .id(1L)
                 .names(Map.of(Language.RUSSIAN, "Лев"))
                 .descriptions(Map.of(Language.RUSSIAN, "Большая кошка"))
                 .build();
-
-        Animal otherAnimal = Animal.builder()
+        Animal animal2 = Animal.builder()
                 .id(2L)
-                .names(Map.of(Language.RUSSIAN, "Тигр"))
+                .names(Map.of(Language.RUSSIAN, "Лев"))
+                .descriptions(Map.of(Language.RUSSIAN, "Большая кошка"))
+                .build();
+        Animal animal3 = Animal.builder()
+                .id(3L)
+                .names(Map.of(Language.RUSSIAN, "Лев"))
+                .descriptions(Map.of(Language.RUSSIAN, "Большая кошка"))
+                .build();
+        Animal animal4 = Animal.builder()
+                .id(4L)
+                .names(Map.of(Language.RUSSIAN, "Лев"))
+                .descriptions(Map.of(Language.RUSSIAN, "Большая кошка"))
+                .build();
+        Animal animal5 = Animal.builder()
+                .id(5L)
+                .names(Map.of(Language.RUSSIAN, "Лев"))
                 .descriptions(Map.of(Language.RUSSIAN, "Большая кошка"))
                 .build();
 
-        List<Animal> animals = Collections.nCopies(4, otherAnimal);
+        Set<Animal> animalSet = Set.of(animal1, animal2, animal3, animal4);
+
         FirstRoundLevel level = FirstRoundLevel.builder()
-                .animals(animals)
-                .correctAnimal(correctAnimal)
+                .animals(animalSet)
+                .correctAnimal(animal5)
                 .build();
 
         Exception e = assertThrows(IncorrectLevelException.class,

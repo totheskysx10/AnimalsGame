@@ -54,7 +54,7 @@ public abstract class LevelService<T extends Level, R extends JpaRepository<T, L
                 throw new IncorrectLevelException("Верный ответ должен содержаться в списке!");
             }
             if (level.getAnimals().size() != ANIMALS_LIST_SIZE) {
-                throw new IncorrectLevelException("Список животных должен содержать ровно 4 элемента.");
+                throw new IncorrectLevelException("Список животных должен содержать ровно 4 элемента. Без дубликатов.");
             }
         }
 

@@ -257,9 +257,9 @@ class SecondRoundLevelServiceTest {
     }
 
     @Test
-    void testIsCorrectAnswer() throws EntityNotFoundException, EntityNotFoundException {
+    void testIsCorrectAnswer() throws EntityNotFoundException {
         Long levelId = 1L;
-        Long userAnswer = 1L;
+        String userAnswer = "Лев";
         Animal correctAnimal = Animal.builder()
                 .id(1L)
                 .names(Map.of(Language.RUSSIAN, "Лев"))
@@ -271,7 +271,7 @@ class SecondRoundLevelServiceTest {
                 .build();
 
         when(levelRepository.findById(levelId)).thenReturn(Optional.of(level));
-        when(animalService.getAnimalById(userAnswer)).thenReturn(correctAnimal);
+        when(animalService.getAnimalByName(userAnswer)).thenReturn(correctAnimal);
 
         assertTrue(secondRoundLevelService.isCorrectAnswer(levelId, userAnswer));
     }

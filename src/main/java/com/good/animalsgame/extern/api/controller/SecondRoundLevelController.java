@@ -124,7 +124,7 @@ public class SecondRoundLevelController {
             @ApiResponse(responseCode = "404", description = "Не найдено животное или ошибка поиска уровня")
     })
     @PostMapping("/is-correct-answer/{id}")
-    public ResponseEntity<Map<String, Boolean>> isCorrectAnswer(@PathVariable long id, @RequestBody LongUserAnswerDTO userAnswer) {
+    public ResponseEntity<Map<String, Boolean>> isCorrectAnswer(@PathVariable long id, @RequestBody StringUserAnswerDTO userAnswer) {
         try {
             Boolean isCorrect = secondRoundLevelService.isCorrectAnswer(id, userAnswer.getAnswer());
             Map<String, Boolean> response = new HashMap<>();

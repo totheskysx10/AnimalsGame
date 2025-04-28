@@ -7,8 +7,8 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 @Schema(description = "DTO ответа пользователя на вопрос с выбором животного")
-public class LongUserAnswerDTO {
+public class StringUserAnswerDTO {
 
     @Schema(description = "Ответ пользователя")
-    Long answer;
+    String answer;
 }

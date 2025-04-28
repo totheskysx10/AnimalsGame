@@ -123,9 +123,9 @@ public abstract class LevelService<T extends Level, R extends JpaRepository<T, L
      * @param levelId    идентификатор уровня
      * @param userAnswer ответ пользователя
      */
-    public boolean isCorrectAnswer(Long levelId, Long userAnswer) throws EntityNotFoundException, EntityNotFoundException {
+    public boolean isCorrectAnswer(Long levelId, String userAnswer) throws EntityNotFoundException {
         T level = getLevelById(levelId);
-        Animal userAnimal = animalService.getAnimalById(userAnswer);
+        Animal userAnimal = animalService.getAnimalByName(userAnswer);
 
         return level.getCorrectAnimal().equals(userAnimal);
     }

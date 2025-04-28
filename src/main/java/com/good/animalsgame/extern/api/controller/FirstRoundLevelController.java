@@ -9,7 +9,7 @@ import com.good.animalsgame.extern.api.assembler.level.FirstRoundLevelAssembler;
 import com.good.animalsgame.extern.api.dto.AnimalDTO;
 import com.good.animalsgame.extern.api.dto.ErrorDTO;
 import com.good.animalsgame.extern.api.dto.level.FirstRoundLevelDTO;
-import com.good.animalsgame.extern.api.dto.LongUserAnswerDTO;
+import com.good.animalsgame.extern.api.dto.StringUserAnswerDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -125,7 +125,7 @@ public class FirstRoundLevelController {
             @ApiResponse(responseCode = "404", description = "Не найдено животное или ошибка поиска уровня")
     })
     @PostMapping("/is-correct-answer/{id}")
-    public ResponseEntity<Map<String, Boolean>> isCorrectAnswer(@PathVariable long id, @RequestBody LongUserAnswerDTO userAnswer) {
+    public ResponseEntity<Map<String, Boolean>> isCorrectAnswer(@PathVariable long id, @RequestBody StringUserAnswerDTO userAnswer) {
         try {
             Boolean isCorrect = firstRoundLevelService.isCorrectAnswer(id, userAnswer.getAnswer());
             Map<String, Boolean> response = new HashMap<>();

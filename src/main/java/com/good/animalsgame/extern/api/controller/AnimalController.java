@@ -1,6 +1,7 @@
 package com.good.animalsgame.extern.api.controller;
 
 import com.good.animalsgame.app.service.AnimalService;
+import com.good.animalsgame.app.service.AnimalSingleLanguageData;
 import com.good.animalsgame.domain.Animal;
 import com.good.animalsgame.exception.EntityDuplicateException;
 import com.good.animalsgame.exception.EntityNotFoundException;
@@ -96,7 +97,9 @@ public class AnimalController {
     public ResponseEntity<Object> addLanguage(@PathVariable Long id, @RequestParam String language,
                                               @RequestBody @Valid AddAnimalLanguageDTO addAnimalLanguageDTO) {
         try {
-            animalService.addLanguage(id, language, addAnimalLanguageDTO.getName(), addAnimalLanguageDTO.getDescription());
+            AnimalSingleLanguageData animalSingleLanguageData =
+                    new AnimalSingleLanguageData(addAnimalLanguageDTO.getName(), addAnimalLanguageDTO.getDescription());
+            animalService.addLanguage(id, language, animalSingleLanguageData);
             return ResponseEntity.ok().build();
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();

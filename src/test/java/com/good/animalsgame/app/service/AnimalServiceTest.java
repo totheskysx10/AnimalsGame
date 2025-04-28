@@ -78,12 +78,36 @@ class AnimalServiceTest {
     }
 
     @Test
+    void testGetAnimalByName() throws EntityNotFoundException {
+        Animal animal = Animal.builder()
+                .id(1L)
+                .names(Map.of(Language.RUSSIAN, "Лев", Language.ENGLISH, "Lion"))
+                .descriptions(Map.of(Language.RUSSIAN, "Большая кошка", Language.ENGLISH, "A big cat"))
+                .build();
+
+        when(animalRepository.findByName("Лев")).thenReturn(Optional.of(animal));
+
+        Animal result = animalService.getAnimalByName("Лев");
+
+        assertEquals("Лев", result.getNames().get(Language.RUSSIAN));
+    }
+
+    @Test
     void testGetAnimalByIdNotFound() {
         when(animalRepository.findById(1L)).thenReturn(Optional.empty());
 
         Exception e = assertThrows(EntityNotFoundException.class, () -> animalService.getAnimalById(1L));
 
         assertEquals("Животное с id 1 не найдено", e.getMessage());
+    }
+
+    @Test
+    void testGetAnimalByNameNotFound() {
+        when(animalRepository.findByName("Лев")).thenReturn(Optional.empty());
+
+        Exception e = assertThrows(EntityNotFoundException.class, () -> animalService.getAnimalByName("Лев"));
+
+        assertEquals("Животное с названием Лев не найдено", e.getMessage());
     }
 
     @Test
@@ -96,6 +120,52 @@ class AnimalServiceTest {
     }
 
     @Test
+    void testGetAnimalSingleLanguageData() throws EntityNotFoundException, LanguageException {
+        Animal animal = Animal.builder()
+                .id(1L)
+                .names(Map.of(Language.RUSSIAN, "Лев", Language.ENGLISH, "Lion"))
+                .descriptions(Map.of(Language.RUSSIAN, "Большая кошка", Language.ENGLISH, "A big cat"))
+                .build();
+
+        when(animalRepository.findById(1L)).thenReturn(Optional.of(animal));
+
+        AnimalSingleLanguageData animalSingleLanguageData = animalService.getAnimalSingleLanguageData(1L, "ENGLISH");
+
+        assertEquals("Lion", animalSingleLanguageData.name());
+        assertEquals("A big cat", animalSingleLanguageData.description());
+    }
+
+    @Test
+    void testGetAnimalSingleLanguageDataInvalid() {
+        Animal animal = Animal.builder()
+                .id(1L)
+                .names(Map.of(Language.RUSSIAN, "Лев", Language.ENGLISH, "Lion"))
+                .descriptions(Map.of(Language.RUSSIAN, "Большая кошка", Language.ENGLISH, "A big cat"))
+                .build();
+
+        when(animalRepository.findById(1L)).thenReturn(Optional.of(animal));
+
+        Exception e = assertThrows(LanguageException.class, () -> animalService.getAnimalSingleLanguageData(1L, "INVALID"));
+
+        assertEquals("Нет языка INVALID", e.getMessage());
+    }
+
+    @Test
+    void testGetAnimalSingleLanguageDataExists() {
+        Animal animal = Animal.builder()
+                .id(1L)
+                .names(Map.of(Language.RUSSIAN, "Лев", Language.ENGLISH, "Lion"))
+                .descriptions(Map.of(Language.RUSSIAN, "Большая кошка", Language.ENGLISH, "A big cat"))
+                .build();
+
+        when(animalRepository.findById(1L)).thenReturn(Optional.of(animal));
+
+        Exception e = assertThrows(LanguageException.class, () -> animalService.getAnimalSingleLanguageData(1L, "ITALIAN"));
+
+        assertEquals("Язык ITALIAN отсутствует у животного!", e.getMessage());
+    }
+
+    @Test
     void testAddLanguage() throws EntityNotFoundException, LanguageException {
         Animal animal = Animal.builder()
                 .id(1L)
@@ -105,7 +175,8 @@ class AnimalServiceTest {
 
         when(animalRepository.findById(1L)).thenReturn(Optional.of(animal));
 
-        animalService.addLanguage(1L, "ENGLISH", "Lion", "Big cat");
+        AnimalSingleLanguageData animalSingleLanguageData = new AnimalSingleLanguageData("Lion", "Big cat");
+        animalService.addLanguage(1L, "ENGLISH", animalSingleLanguageData);
 
         assertEquals("Lion", animal.getNames().get(Language.ENGLISH));
         assertEquals("Big cat", animal.getDescriptions().get(Language.ENGLISH));
@@ -122,7 +193,8 @@ class AnimalServiceTest {
 
         when(animalRepository.findById(1L)).thenReturn(Optional.of(animal));
 
-        Exception e = assertThrows(LanguageException.class, () -> animalService.addLanguage(1L, "INVALID", "Name", "Desc"));
+        AnimalSingleLanguageData animalSingleLanguageData = new AnimalSingleLanguageData("Lion", "Big cat");
+        Exception e = assertThrows(LanguageException.class, () -> animalService.addLanguage(1L, "INVALID", animalSingleLanguageData));
 
         assertEquals("Нет языка INVALID", e.getMessage());
     }
@@ -137,7 +209,8 @@ class AnimalServiceTest {
 
         when(animalRepository.findById(1L)).thenReturn(Optional.of(animal));
 
-        Exception e = assertThrows(LanguageException.class, () -> animalService.addLanguage(1L, "RUSSIAN", "Новое имя", "Новое описание"));
+        AnimalSingleLanguageData animalSingleLanguageData = new AnimalSingleLanguageData("Lion", "Big cat");
+        Exception e = assertThrows(LanguageException.class, () -> animalService.addLanguage(1L, "RUSSIAN", animalSingleLanguageData));
 
         assertEquals("Язык RUSSIAN уже есть!", e.getMessage());
     }

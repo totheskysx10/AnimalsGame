@@ -66,30 +66,54 @@ public class AnimalService {
     }
 
     /**
+     * Ищет животного по названию
+     *
+     * @param name название
+     */
+    public Animal getAnimalByName(String name) throws EntityNotFoundException {
+        Optional<Animal> foundAnimal = animalRepository.findByName(formatAnimalName(name));
+        return foundAnimal.orElseThrow(() -> new EntityNotFoundException(String.format("Животное с названием %s не найдено", name)));
+    }
+
+    /**
+     * Возвращает данные о животном на одном языке
+     * @param id идентификатор
+     * @param language язык
+     * @throws LanguageException если не найден язык в целом или у животного
+     */
+    public AnimalSingleLanguageData getAnimalSingleLanguageData(Long id, String language) throws EntityNotFoundException, LanguageException {
+        Animal animal = getAnimalById(id);
+
+        Language languageConst = getLanguageEnumValue(language);
+
+        if (!animal.getNames().containsKey(languageConst)) {
+            throw new LanguageException("Язык " + language + " отсутствует у животного!");
+        }
+
+        String name = animal.getNames().get(languageConst);
+        String description = animal.getDescriptions().get(languageConst);
+
+        return new AnimalSingleLanguageData(name, description);
+    }
+
+    /**
      * Добавляет животному язык
      * @param id идентификатор
      * @param language язык
-     * @param name название
-     * @param description описание
+     * @param animalSingleLanguageData информация о животном
      * @throws LanguageException если язык уже есть или если не найден
      */
-    public void addLanguage(Long id, String language, String name, String description) throws EntityNotFoundException, LanguageException {
+    public void addLanguage(Long id, String language, AnimalSingleLanguageData animalSingleLanguageData) throws EntityNotFoundException, LanguageException {
         Animal animal = getAnimalById(id);
 
-        Language languageConst;
-
-        try {
-            languageConst = Language.valueOf(language);
-        } catch (IllegalArgumentException e) {
-            throw new LanguageException("Нет языка " + language);
-        }
+        Language languageConst = getLanguageEnumValue(language);
 
         if (animal.getNames().containsKey(languageConst)) {
             throw new LanguageException("Язык " + language + " уже есть!");
         }
 
-        animal.getNames().put(languageConst, name);
-        animal.getDescriptions().put(languageConst, description);
+        animal.getNames().put(languageConst, animalSingleLanguageData.name());
+        animal.getDescriptions().put(languageConst, animalSingleLanguageData.description());
 
         animalRepository.save(animal);
         log.info("Добавлен язык {} к животному {}", language, id);
@@ -104,13 +128,7 @@ public class AnimalService {
     public void removeLanguage(Long id, String language) throws EntityNotFoundException, LanguageException {
         Animal animal = getAnimalById(id);
 
-        Language languageConst;
-
-        try {
-            languageConst = Language.valueOf(language);
-        } catch (IllegalArgumentException e) {
-            throw new LanguageException("Нет языка " + language);
-        }
+        Language languageConst = getLanguageEnumValue(language);
 
         if (!animal.getNames().containsKey(languageConst)) {
             throw new LanguageException("Язык " + language + " отсутствует у животного!");
@@ -166,5 +184,22 @@ public class AnimalService {
         }
 
         return result;
+    }
+
+    /**
+     * Возвращает язык из Enum
+     * @param language язык в виде строки
+     * @throws LanguageException если язык не найден
+     */
+    private Language getLanguageEnumValue(String language) throws LanguageException {
+        Language languageConst;
+
+        try {
+            languageConst = Language.valueOf(language);
+        } catch (IllegalArgumentException e) {
+            throw new LanguageException("Нет языка " + language);
+        }
+
+        return languageConst;
     }
 }

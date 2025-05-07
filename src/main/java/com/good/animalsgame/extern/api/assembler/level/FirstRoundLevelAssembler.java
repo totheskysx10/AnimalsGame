@@ -40,7 +40,7 @@ public class FirstRoundLevelAssembler extends RepresentationModelAssemblerSuppor
         FirstRoundLevelDTO firstRoundLevelDTO = instantiateModel(firstRoundLevel);
 
         firstRoundLevelDTO.setId(firstRoundLevel.getId());
-        firstRoundLevelDTO.setLevelImage(new CustomMultipartFile(firstRoundLevel.getLevelImage(), "image", "image/png"));
+        firstRoundLevelDTO.setLevelImage(new CustomMultipartFile(firstRoundLevel.getLevelImage(), "image", "image/jpeg"));
         firstRoundLevelDTO.setAnimalNames(firstRoundLevel.getAnimals()
                 .stream()
                 .map(animal -> animal.getNames().get(Language.RUSSIAN))
@@ -68,7 +68,7 @@ public class FirstRoundLevelAssembler extends RepresentationModelAssemblerSuppor
         }
 
         firstRoundLevelDTO.setId(firstRoundLevel.getId());
-        firstRoundLevelDTO.setLevelImage(new CustomMultipartFile(firstRoundLevel.getLevelImage(), "image", "image/png"));
+        firstRoundLevelDTO.setLevelImage(new CustomMultipartFile(firstRoundLevel.getLevelImage(), "image", "image/jpeg"));
         firstRoundLevelDTO.setAnimalNames(animalNames);
         firstRoundLevelDTO.setCorrectAnimalName(animalService.getAnimalSingleLanguageData(firstRoundLevel.getCorrectAnimal().getId(), language).name());
         firstRoundLevelDTO.setAnimalCoordinates(firstRoundLevel.getAnimalCoordinates());

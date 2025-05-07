@@ -9,11 +9,13 @@ import com.good.animalsgame.extern.api.assembler.level.SecondRoundLevelAssembler
 import com.good.animalsgame.extern.api.dto.*;
 import com.good.animalsgame.extern.api.dto.level.SecondRoundLevelDTO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -48,10 +50,10 @@ public class SecondRoundLevelController {
             @ApiResponse(responseCode = "400", description = "Некорректный запрос (конкретная ошибка указывается в ответе)"),
             @ApiResponse(responseCode = "404", description = "Не найдено животное, которое упоминается в теле запроса")
     })
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Transactional
     public ResponseEntity<Object> createSecondRoundLevel(@RequestPart("levelImage") MultipartFile levelImage,
-                                                         @RequestPart("levelData") @Valid SecondRoundLevelDTO secondRoundLevelDTO) {
+                                                         @RequestPart("levelData") @Schema(type = "string", format = "binary") @Valid SecondRoundLevelDTO secondRoundLevelDTO) {
         try {
             secondRoundLevelDTO.setLevelImage(levelImage);
             SecondRoundLevel secondRoundLevel = secondRoundLevelAssembler.toEntity(secondRoundLevelDTO);

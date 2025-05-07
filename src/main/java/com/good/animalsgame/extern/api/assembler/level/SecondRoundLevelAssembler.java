@@ -48,7 +48,7 @@ public class SecondRoundLevelAssembler extends RepresentationModelAssemblerSuppo
         }
         secondRoundLevelDTO.setCorrectAnimalName(secondRoundLevel.getCorrectAnimal().getNames().get(Language.RUSSIAN));
         secondRoundLevelDTO.setAnimalNameInQuestion(secondRoundLevel.getAnimalInQuestion().getNames().get(Language.RUSSIAN));
-        secondRoundLevelDTO.setLevelImage(new CustomMultipartFile(secondRoundLevel.getLevelImage(), "image", "image/png"));
+        secondRoundLevelDTO.setLevelImage(new CustomMultipartFile(secondRoundLevel.getLevelImage(), "image", "image/jpeg"));
         secondRoundLevelDTO.setAnimalCoordinates(secondRoundLevel.getAnimalCoordinates());
 
         secondRoundLevelDTO.add(linkTo(methodOn(SecondRoundLevelController.class).getLevelById(secondRoundLevel.getId(), "RUSSIAN")).withSelfRel());
@@ -76,7 +76,7 @@ public class SecondRoundLevelAssembler extends RepresentationModelAssemblerSuppo
         }
         secondRoundLevelDTO.setCorrectAnimalName(animalService.getAnimalSingleLanguageData(secondRoundLevel.getCorrectAnimal().getId(), language).name());
         secondRoundLevelDTO.setAnimalNameInQuestion(animalService.getAnimalSingleLanguageData(secondRoundLevel.getAnimalInQuestion().getId(), language).name());
-        secondRoundLevelDTO.setLevelImage(new CustomMultipartFile(secondRoundLevel.getLevelImage(), "image", "image/png"));
+        secondRoundLevelDTO.setLevelImage(new CustomMultipartFile(secondRoundLevel.getLevelImage(), "image", "image/jpeg"));
         secondRoundLevelDTO.setAnimalCoordinates(secondRoundLevel.getAnimalCoordinates());
 
         secondRoundLevelDTO.add(linkTo(methodOn(SecondRoundLevelController.class).getLevelById(secondRoundLevel.getId(), language)).withSelfRel());

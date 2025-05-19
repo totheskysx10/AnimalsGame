@@ -15,3 +15,8 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+
+swagger:
+  access:
+    login: swagger
+    password: swaggerPass

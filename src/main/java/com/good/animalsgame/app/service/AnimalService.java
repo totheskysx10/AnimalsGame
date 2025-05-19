@@ -163,27 +163,9 @@ public class AnimalService {
      * @param names названия на языках
      */
     private boolean isDuplicateAnimal(Map<Language, String> names) {
-        List<Animal> allAnimals = animalRepository.findAll();
-
-        Set<String> existingNameSet = allAnimals.stream()
-                .flatMap(animal -> animal.getNames().values().stream())
+        return names.values().stream()
                 .map(this::formatAnimalName)
-                .collect(Collectors.toSet());
-
-        Set<String> newNames = names.values().stream()
-                .map(this::formatAnimalName)
-                .collect(Collectors.toSet());
-
-        boolean result = false;
-
-        for (String newName : newNames) {
-            if (existingNameSet.contains(newName)) {
-                result = true;
-                break;
-            }
-        }
-
-        return result;
+                .anyMatch(name -> animalRepository.findByName(name).isPresent());
     }
 
     /**

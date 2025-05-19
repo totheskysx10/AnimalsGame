@@ -28,7 +28,7 @@ class AnimalServiceTest {
 
     @Test
     void testCreateAnimal() throws EntityDuplicateException {
-        when(animalRepository.findAll()).thenReturn(List.of());
+        when(animalRepository.findByName("Лев")).thenReturn(Optional.empty());
 
         Animal animal = Animal.builder()
                 .id(1L)
@@ -55,7 +55,7 @@ class AnimalServiceTest {
                 .descriptions(Map.of(Language.RUSSIAN, "Большая кошка"))
                 .build();
 
-        when(animalRepository.findAll()).thenReturn(new ArrayList<>(List.of(animalInBase)));
+        when(animalRepository.findByName("Лев")).thenReturn(Optional.of(animalInBase));
 
         Exception e = assertThrows(EntityDuplicateException.class, () -> animalService.createAnimal(animal));
 

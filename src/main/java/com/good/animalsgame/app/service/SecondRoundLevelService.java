@@ -3,8 +3,8 @@ package com.good.animalsgame.app.service;
 import com.good.animalsgame.app.cache.LevelsSessionCache;
 import com.good.animalsgame.app.repository.SecondRoundLevelRepository;
 import com.good.animalsgame.domain.SecondRoundLevel;
+import com.good.animalsgame.exception.EntityNotFoundException;
 import com.good.animalsgame.exception.IncorrectLevelException;
-import com.good.animalsgame.exception.LevelNotFoundException;
 import org.springframework.stereotype.Service;
 
 /**
@@ -45,7 +45,7 @@ public class SecondRoundLevelService extends LevelService<SecondRoundLevel, Seco
      * @param levelId идентификатор уровня
      * @param userAnswer ответ пользователя
      */
-    public boolean isCorrectYesNoAnswer(Long levelId, boolean userAnswer) throws LevelNotFoundException {
+    public boolean isCorrectYesNoAnswer(Long levelId, boolean userAnswer) throws EntityNotFoundException {
         SecondRoundLevel level = getLevelById(levelId);
         boolean rightAnswerForLevel = (level.getCorrectAnimal() == level.getAnimalInQuestion());
         return userAnswer == rightAnswerForLevel;

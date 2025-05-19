@@ -3,7 +3,7 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/animals_coord
+    url: jdbc:postgresql://localhost:5432/animals_lang
     username: postgres
     password: 1
   servlet:

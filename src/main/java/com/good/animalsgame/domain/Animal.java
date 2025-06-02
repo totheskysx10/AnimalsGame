@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Сущность животного
@@ -12,14 +13,42 @@ import java.util.List;
 @Table(name = "animals")
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Animal {
+
     /**
-     * Название животного
+     * Идентификатор животного
+     */
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Getter
+    private Long id;
+
+    /**
+     * Названия животного, язык -> название
      */
     @Getter
     @Column(name = "animal_name")
-    @Id
-    private String name;
+    @ElementCollection
+    @CollectionTable(
+            name = "animal_name",
+            joinColumns = @JoinColumn(name = "animal_id")
+    )
+    @MapKeyColumn(name = "language")
+    private Map<Language, String> names;
+
+    /**
+     * Описания животного, язык -> описание
+     */
+    @Getter
+    @Column(name = "animal_description", columnDefinition = "TEXT")
+    @ElementCollection
+    @CollectionTable(
+            name = "animal_description",
+            joinColumns = @JoinColumn(name = "animal_id")
+    )
+    @MapKeyColumn(name = "language")
+    private Map<Language, String> descriptions;
 
     /**
      * Уровни с животным в списке

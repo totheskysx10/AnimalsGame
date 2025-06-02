@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * Сущность уровня
@@ -34,7 +34,7 @@ public abstract class Level {
             inverseJoinColumns = @JoinColumn(name = "animal_name")
     )
     @Getter
-    private List<Animal> animals;
+    private Set<Animal> animals;
 
     /**
      * Корректное животное

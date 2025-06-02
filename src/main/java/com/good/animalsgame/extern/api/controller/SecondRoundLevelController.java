@@ -4,14 +4,18 @@ import com.good.animalsgame.app.service.SecondRoundLevelService;
 import com.good.animalsgame.domain.Animal;
 import com.good.animalsgame.domain.SecondRoundLevel;
 import com.good.animalsgame.exception.*;
-import com.good.animalsgame.extern.api.assembler.SecondRoundLevelAssembler;
+import com.good.animalsgame.extern.api.assembler.AnimalAssembler;
+import com.good.animalsgame.extern.api.assembler.level.SecondRoundLevelAssembler;
 import com.good.animalsgame.extern.api.dto.*;
+import com.good.animalsgame.extern.api.dto.level.SecondRoundLevelDTO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -28,13 +32,16 @@ public class SecondRoundLevelController {
 
     private final SecondRoundLevelAssembler secondRoundLevelAssembler;
     private final SecondRoundLevelService secondRoundLevelService;
+    private final AnimalAssembler animalAssembler;
 
     private static final int SECOND_ROUND_NUMBER = 2;
 
     public SecondRoundLevelController(SecondRoundLevelAssembler secondRoundLevelAssembler,
-                                      SecondRoundLevelService secondRoundLevelService) {
+                                      SecondRoundLevelService secondRoundLevelService,
+                                      AnimalAssembler animalAssembler) {
         this.secondRoundLevelAssembler = secondRoundLevelAssembler;
         this.secondRoundLevelService = secondRoundLevelService;
+        this.animalAssembler = animalAssembler;
     }
 
     @Operation(summary = "Создать уровень 2 раунда", description = "Создает уровень 2 раунда")
@@ -43,10 +50,10 @@ public class SecondRoundLevelController {
             @ApiResponse(responseCode = "400", description = "Некорректный запрос (конкретная ошибка указывается в ответе)"),
             @ApiResponse(responseCode = "404", description = "Не найдено животное, которое упоминается в теле запроса")
     })
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Transactional
     public ResponseEntity<Object> createSecondRoundLevel(@RequestPart("levelImage") MultipartFile levelImage,
-                                                         @RequestPart("levelData") @Valid SecondRoundLevelDTO secondRoundLevelDTO) {
+                                                         @RequestPart("levelData") @Schema(type = "string", format = "binary") @Valid SecondRoundLevelDTO secondRoundLevelDTO) {
         try {
             secondRoundLevelDTO.setLevelImage(levelImage);
             SecondRoundLevel secondRoundLevel = secondRoundLevelAssembler.toEntity(secondRoundLevelDTO);
@@ -55,7 +62,7 @@ public class SecondRoundLevelController {
             return new ResponseEntity<>(secondRoundLevelAssembler.toModel(secondRoundLevel), HttpStatus.CREATED);
         } catch (IncorrectLevelException e) {
             return new ResponseEntity<>(new ErrorDTO(e.getMessage()), HttpStatus.BAD_REQUEST);
-        } catch (AnimalNotFoundException e) {
+        } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(new ErrorDTO(e.getMessage()), HttpStatus.NOT_FOUND);
         } catch (IOException e) {
             return new ResponseEntity<>(new ErrorDTO(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -65,16 +72,16 @@ public class SecondRoundLevelController {
     @Operation(summary = "Получить уровень 2 раунда по ID", description = "Находит по идентификатору уровень 2 раунда")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Уровень успешно найден"),
-            @ApiResponse(responseCode = "404", description = "Уровень не найден")
+            @ApiResponse(responseCode = "404", description = "Уровень не найден или ошибка поиска языка")
     })
     @Transactional
     @GetMapping("/{id}")
-    public ResponseEntity<SecondRoundLevelDTO> getLevelById(@PathVariable long id) {
+    public ResponseEntity<Object> getLevelById(@PathVariable long id, @RequestParam String language) {
         try {
             SecondRoundLevel secondRoundLevel = secondRoundLevelService.getLevelById(id);
-            return ResponseEntity.ok(secondRoundLevelAssembler.toModel(secondRoundLevel));
-        } catch (LevelNotFoundException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.ok(secondRoundLevelAssembler.toModel(secondRoundLevel, language));
+        } catch (EntityNotFoundException | LanguageException e) {
+            return new ResponseEntity<>(new ErrorDTO(e.getMessage()), HttpStatus.NOT_FOUND);
         }
     }
 
@@ -89,7 +96,7 @@ public class SecondRoundLevelController {
         try {
             secondRoundLevelService.deleteLevel(id);
             return ResponseEntity.ok().build();
-        } catch (LevelNotFoundException e) {
+        } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
     }
@@ -97,17 +104,17 @@ public class SecondRoundLevelController {
     @Operation(summary = "Получить рандомный уровень 2 раунда", description = "Возвращает рандомный уровень 2 раунда")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Уровень успешно найден"),
-            @ApiResponse(responseCode = "404", description = "Внутренняя ошибка поиска уровня"),
+            @ApiResponse(responseCode = "404", description = "Внутренняя ошибка поиска уровня или отсутствует язык у уровня или в целом"),
             @ApiResponse(responseCode = "204", description = "Все уровни были показаны - больше нечего возвращать")
     })
     @Transactional
     @GetMapping("/random-level")
-    public ResponseEntity<SecondRoundLevelDTO> getRandomLevel() {
+    public ResponseEntity<Object> getRandomLevel(@RequestParam String language) {
         try {
             SecondRoundLevel secondRoundLevel = secondRoundLevelService.getRandomLevel(SECOND_ROUND_NUMBER);
-            return ResponseEntity.ok(secondRoundLevelAssembler.toModel(secondRoundLevel));
-        } catch (LevelNotFoundException | NoSuchRoundException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.ok(secondRoundLevelAssembler.toModel(secondRoundLevel, language));
+        } catch (EntityNotFoundException | NoSuchRoundException | LanguageException e) {
+            return new ResponseEntity<>(new ErrorDTO(e.getMessage()), HttpStatus.NOT_FOUND);
         } catch (NoLevelsLeftException e) {
             return ResponseEntity.noContent().build();
         }
@@ -125,7 +132,7 @@ public class SecondRoundLevelController {
             Map<String, Boolean> response = new HashMap<>();
             response.put("isCorrect", isCorrect);
             return ResponseEntity.ok(response);
-        } catch (LevelNotFoundException | AnimalNotFoundException e) {
+        } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
     }
@@ -142,7 +149,7 @@ public class SecondRoundLevelController {
             Map<String, Boolean> response = new HashMap<>();
             response.put("isCorrect", isCorrect);
             return ResponseEntity.ok(response);
-        } catch (LevelNotFoundException e) {
+        } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
     }
@@ -154,11 +161,11 @@ public class SecondRoundLevelController {
     })
     @Transactional
     @GetMapping("/{id}/correct")
-    public ResponseEntity<AnimalDTO> get(@PathVariable long id) {
+    public ResponseEntity<AnimalDTO> getLevelCorrectAnimal(@PathVariable long id) {
         try {
             Animal animal = secondRoundLevelService.getLevelCorrectAnimal(id);
-            return ResponseEntity.ok(new AnimalDTO(animal.getName()));
-        } catch (LevelNotFoundException e) {
+            return ResponseEntity.ok(animalAssembler.toModel(animal));
+        } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
     }

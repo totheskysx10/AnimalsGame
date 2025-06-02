@@ -54,7 +54,7 @@ public abstract class LevelService<T extends Level, R extends JpaRepository<T, L
                 throw new IncorrectLevelException("Верный ответ должен содержаться в списке!");
             }
             if (level.getAnimals().size() != ANIMALS_LIST_SIZE) {
-                throw new IncorrectLevelException("Список животных должен содержать ровно 4 элемента.");
+                throw new IncorrectLevelException("Список животных должен содержать ровно 4 элемента. Без дубликатов.");
             }
         }
 
@@ -67,11 +67,11 @@ public abstract class LevelService<T extends Level, R extends JpaRepository<T, L
      * Получает уровень по идентификатору.
      *
      * @param levelId идентификатор
-     * @throws LevelNotFoundException если уровень не найден
+     * @throws EntityNotFoundException если уровень не найден
      */
-    public T getLevelById(long levelId) throws LevelNotFoundException {
+    public T getLevelById(long levelId) throws EntityNotFoundException {
         Optional<T> foundLevel = levelRepository.findById(levelId);
-        return foundLevel.orElseThrow(() -> new LevelNotFoundException(String.format("Уровень с id %d не найден", levelId)));
+        return foundLevel.orElseThrow(() -> new EntityNotFoundException(String.format("Уровень с id %d не найден", levelId)));
     }
 
     /**
@@ -79,12 +79,12 @@ public abstract class LevelService<T extends Level, R extends JpaRepository<T, L
      *
      * @param levelId идентификатор
      */
-    public void deleteLevel(long levelId) throws LevelNotFoundException {
+    public void deleteLevel(long levelId) throws EntityNotFoundException {
         if (levelRepository.existsById(levelId)) {
             levelRepository.deleteById(levelId);
             log.info("Удален уровень с id {}", levelId);
         } else {
-            throw new LevelNotFoundException(String.format("Уровень с id %d не найден", levelId));
+            throw new EntityNotFoundException(String.format("Уровень с id %d не найден", levelId));
         }
     }
 
@@ -93,9 +93,9 @@ public abstract class LevelService<T extends Level, R extends JpaRepository<T, L
      * Удаляет, чтобы пользователь не ловил дублирования
      *
      * @param round раунд
-     * @throws LevelNotFoundException если не найден уровень
+     * @throws EntityNotFoundException если не найден уровень
      */
-    public T getRandomLevel(int round) throws LevelNotFoundException, NoSuchRoundException, NoLevelsLeftException {
+    public T getRandomLevel(int round) throws EntityNotFoundException, NoSuchRoundException, NoLevelsLeftException {
         int roundSize = levelsSessionCache.getRoundSize(round);
 
         if (roundSize == 0) {
@@ -108,12 +108,12 @@ public abstract class LevelService<T extends Level, R extends JpaRepository<T, L
             Long randomLevelId = levelsSessionCache.getLevelId(round, randomLevelIndex);
             T randomLevel = levelRepository
                     .findById(randomLevelId)
-                    .orElseThrow(() -> new LevelNotFoundException(String.format("Уровень с id %d не найден", randomLevelId)));
+                    .orElseThrow(() -> new EntityNotFoundException(String.format("Уровень с id %d не найден", randomLevelId)));
 
             levelsSessionCache.removeLevel(round, randomLevelIndex);
             return randomLevel;
         } catch (IndexOutOfBoundsException e) {
-            throw new LevelNotFoundException(String.format("Не найден уровень с индексом %d", randomLevelIndex));
+            throw new EntityNotFoundException(String.format("Не найден уровень с индексом %d", randomLevelIndex));
         }
     }
 
@@ -123,7 +123,7 @@ public abstract class LevelService<T extends Level, R extends JpaRepository<T, L
      * @param levelId    идентификатор уровня
      * @param userAnswer ответ пользователя
      */
-    public boolean isCorrectAnswer(Long levelId, String userAnswer) throws LevelNotFoundException, AnimalNotFoundException {
+    public boolean isCorrectAnswer(Long levelId, String userAnswer) throws EntityNotFoundException {
         T level = getLevelById(levelId);
         Animal userAnimal = animalService.getAnimalByName(userAnswer);
 
@@ -134,7 +134,7 @@ public abstract class LevelService<T extends Level, R extends JpaRepository<T, L
      * Возвращает верное животное уровня
      * @param levelId идентификатор уровня
      */
-    public Animal getLevelCorrectAnimal(Long levelId) throws LevelNotFoundException {
+    public Animal getLevelCorrectAnimal(Long levelId) throws EntityNotFoundException {
         T level = getLevelById(levelId);
         return level.getCorrectAnimal();
     }
